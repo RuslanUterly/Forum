@@ -1,5 +1,6 @@
 import { useState } from "react"
 import logo from "../icons/logo.svg"
+import { Link } from "react-router-dom";
 
 export default function Register() {
     const [userName, setUserName] = useState('');
@@ -109,9 +110,9 @@ export default function Register() {
 
           <p className="mt-10 text-center text-sm text-gray-500">
             Уже зарегистрированы?{' '}
-            <a href="/#" className="font-semibold leading-6 text-[#2990CE] hover:text-[#2FA2E7]">
+            <Link to="/login" className="font-semibold leading-6 text-[#2990CE] hover:text-[#2FA2E7]">
               Войти тут
-            </a>
+            </Link>
           </p>
         </div>
       </div>

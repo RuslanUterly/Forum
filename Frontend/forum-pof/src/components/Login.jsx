@@ -1,5 +1,6 @@
 import { useState } from "react"
 import logo from "../icons/logo.svg"
+import { Link } from "react-router-dom";
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -51,7 +52,7 @@ export default function Login() {
                 <input
                   id="email"
                   name="email"
-                  // type="email"
+                  type="email"
                   required
                   autoComplete="email"
                   onChange={(e) => setEmail(e.target.value)}
@@ -96,9 +97,9 @@ export default function Login() {
 
           <p className="mt-10 text-center text-sm text-gray-500">
             Нет аккаунта?{' '}
-            <a href="/#" className="font-semibold leading-6 text-[#2990CE] hover:text-[#2FA2E7]">
+            <Link to='/register' className="font-semibold leading-6 text-[#2990CE] hover:text-[#2FA2E7]">
               Зарегистрируйтесь
-            </a>
+            </Link>
           </p>
         </div>
       </div>
