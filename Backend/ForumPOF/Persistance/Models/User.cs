@@ -35,14 +35,9 @@ public class User
 
     public static User Update(User user, string password, string email, DateTime updated)
     {
-        return new User
-        {
-            Id = user.Id,
-            UserName = user.UserName,
-            Password = password,
-            Email = email,
-            Created = user.Created,
-            Updated = updated
-        };
+        user.Email = email;
+        user.Password = password;
+        user.Updated = updated;
+        return user;
     }
 }
