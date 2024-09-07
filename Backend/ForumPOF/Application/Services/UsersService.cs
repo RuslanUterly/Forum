@@ -37,11 +37,27 @@ public class UsersService(
         var result = _passwordHasher.Verify(password, user.Password);
 
         if (result is false)
-            throw new Exception("Failded to login");
+            throw new Exception("Ошибка авторизации! Проверьте логин или пароль");
 
         var token = _jwtProvider.GenerateToken(user);
 
         return token;
+    }
+
+    public async Task<string> Reestablish(string email, string password)
+    {
+
+        var user = await _userRepository.GetUserByEmail(email);
+        if (user is null)
+            throw new Exception("Пользователь не найден");
+
+        var passwordHash = _passwordHasher.Generate(password);
+
+        user = User.Update(user, passwordHash, email, DateTime.Now);
+        return await _userRepository!.UpdateUser(user) ? 
+            "Пароль успешно изменен" 
+            : 
+            "Ошибка изменения пароля";
     }
 
     //////public Task<JwtSecurityToken> Verify(string jwt)

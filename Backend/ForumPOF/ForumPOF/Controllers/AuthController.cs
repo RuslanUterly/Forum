@@ -41,6 +41,24 @@ public class AuthController(UsersService usersService) : Controller
         return Ok(token);
     }
 
+    [HttpPost("reestablish")]
+    public async Task<IActionResult> Reestablish([FromBody] LoginUserRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        try
+        {
+            await usersService.Reestablish(request.Email, request.Password);
+            return Ok("Пароль успешно изменен!");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+
     [HttpPost("logout")]
     public IActionResult Logout()
     {

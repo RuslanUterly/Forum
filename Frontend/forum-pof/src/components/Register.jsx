@@ -45,8 +45,8 @@ export default function Register() {
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
                 Имя пользователя
               </label>
               <div className="mt-2">

@@ -67,9 +67,9 @@ export default function Login() {
                   Пароль
                 </label>
                 <div className="text-sm">
-                  <a href="/#" className="font-semibold text-[#2990CE] hover:text-[#2FA2E7]">
+                  <Link to="/reestablish" className="font-semibold text-[#2990CE] hover:text-[#2FA2E7]">
                     Забыли пароль?
-                  </a>
+                  </Link>
                 </div>
               </div>
               <div className="mt-2">
