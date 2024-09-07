@@ -16,19 +16,23 @@ public class UserRepository(ForumContext context) : IUserRepository
 
     public async Task<User> GetUserById(Ulid id)
     {
-        return await _context.Users.AsNoTracking()
-                                   .FirstOrDefaultAsync(u => u.Id == id);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task<User> GetUserByEmail(string email)
     {
-        return await _context.Users.AsNoTracking()
-                                   .FirstOrDefaultAsync(u => u.Email == email);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Email == email);
     }
 
     public async Task<ICollection<User>> GetUsers()
     {
-        return await _context.Users.ToArrayAsync();
+        return await _context.Users
+            .AsNoTracking()
+            .ToArrayAsync();
     }
 
     public async Task<bool> CreateUser(User user)
