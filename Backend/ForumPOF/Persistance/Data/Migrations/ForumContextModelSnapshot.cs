@@ -8,7 +8,7 @@ using Persistance.Data;
 
 #nullable disable
 
-namespace Persistance.Migrations
+namespace Persistance.Data.Migrations
 {
     [DbContext(typeof(ForumContext))]
     partial class ForumContextModelSnapshot : ModelSnapshot
@@ -212,7 +212,7 @@ namespace Persistance.Migrations
             modelBuilder.Entity("Persistance.Models.Comment", b =>
                 {
                     b.HasOne("Persistance.Models.Post", "Post")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -229,7 +229,7 @@ namespace Persistance.Migrations
             modelBuilder.Entity("Persistance.Models.Post", b =>
                 {
                     b.HasOne("Persistance.Models.Topic", "Topic")
-                        .WithMany()
+                        .WithMany("Posts")
                         .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -284,6 +284,11 @@ namespace Persistance.Migrations
                     b.Navigation("Topics");
                 });
 
+            modelBuilder.Entity("Persistance.Models.Post", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
             modelBuilder.Entity("Persistance.Models.Tag", b =>
                 {
                     b.Navigation("TopicTags");
@@ -291,6 +296,8 @@ namespace Persistance.Migrations
 
             modelBuilder.Entity("Persistance.Models.Topic", b =>
                 {
+                    b.Navigation("Posts");
+
                     b.Navigation("ThreadTags");
                 });
 

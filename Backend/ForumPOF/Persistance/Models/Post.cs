@@ -17,4 +17,6 @@ public class Post
 
     public Topic Topic { get; set; }
     public User? User { get; set; }
+
+    public virtual ICollection<Comment> Comments { get; set; }
 }

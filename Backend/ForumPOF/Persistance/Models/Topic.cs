@@ -19,6 +19,7 @@ public class Topic
 
     public User? User { get; set; }
     public Category Category { get; set; }
+    public ICollection<Post> Posts { get; set; }
     public ICollection<TopicTag> ThreadTags { get; set; }
 
 }
