@@ -67,7 +67,7 @@ public class UsersService(
 
     public async Task<User> Recieve(string jwt)
     {
-        Ulid id = Reciever.RecieveUlid(_jwtProvider, jwt);
+        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
         
         return await _userRepository.GetUserById(id);
     }

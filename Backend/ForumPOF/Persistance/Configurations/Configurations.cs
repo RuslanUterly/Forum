@@ -36,6 +36,9 @@ public class CategoryConfiguration : UlidConverter, IEntityTypeConfiguration<Cat
 {
     public void Configure(EntityTypeBuilder<Category> builder)
     {
+        builder.HasIndex(c => c.Name)
+               .IsUnique();
+
         builder.Property(c => c.Id)
                .HasConversion(ulidConverter);
     }

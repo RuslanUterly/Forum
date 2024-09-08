@@ -22,4 +22,20 @@ public class Topic
     public ICollection<Post> Posts { get; set; }
     public ICollection<TopicTag> ThreadTags { get; set; }
 
+    public static Topic Create(
+        Ulid id, 
+        string Title, 
+        Ulid userId, 
+        Ulid categoryId,
+        DateTime created)
+    {
+        return new Topic()
+        {
+            Id = id,
+            Title = Title,
+            UserId = userId,
+            CategoryId = categoryId,
+            Created = created
+        };
+    }
 }
