@@ -14,6 +14,16 @@ public class CategoryRepository(ForumContext context) : ICategoryRepository
 {
     private readonly ForumContext _context = context;
 
+    public async Task<bool> CategoryExistByName(string categoryName)
+    {
+        return await _context.Categories.AnyAsync(c => c.Name == categoryName);
+    }
+
+    public async Task<bool> CategoryExistById(Ulid id)
+    {
+        return await _context.Categories.AnyAsync(c => c.Id == id);
+    }
+
     public async Task<ICollection<Category>> GetCategories()
     {
         return await _context.Categories.ToArrayAsync();

@@ -1,4 +1,5 @@
-﻿using Persistance.Models;
+﻿using Application.Helper;
+using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -24,40 +25,63 @@ public class CategoriesService(
         return await _categoryRepository.GetCategoryByName(categoryName);
     }
 
-    public async Task<string> CreateCategory(string categoryName)
+    public async Task<Result> CreateCategory(string categoryName)
     {
-        var category = await _categoryRepository.GetCategoryByName(categoryName);
+        //var isExist = await _categoryRepository.CategoryExistByName(categoryName);
 
+        //if (isExist is not false)
+        //    return Result.Failure("Категория уже создана");
+
+        var category = await _categoryRepository.GetCategoryByName(categoryName);
+        
         if (category is not null)
-            throw new Exception("Категория уже создана");
+            return Result.Failure("Категория уже создана");
 
         category = Category.Create(Ulid.NewUlid(), categoryName, DateTime.Now);
         
-        return await _categoryRepository.CreateCategory(category) ?
-            "Категория создана!" : "Произошла ошибка!";
+        var isCreated = await _categoryRepository.CreateCategory(category);
+
+        return isCreated ?
+            Result.Success("Категория создана") :
+            Result.Failure("Произошла ошибка");
     }
 
-    public async Task<string> UpdateCategory(Ulid ulid, string categoryName)
+    public async Task<Result> UpdateCategory(Ulid ulid, string categoryName)
     {
+        //var isExist = await _categoryRepository.CategoryExistById(ulid);
+
+        //if (isExist is not true)
+        //    return Result.Failure("Категория не найдена");
+
         var category = await _categoryRepository.GetCategoryById(ulid);
 
         if (category is null)
-            throw new Exception("Категория не найдена");
+            return Result.Failure("Категория не найдена");
 
         category = Category.Update(category, categoryName);
 
-        return await _categoryRepository.UpdateCategory(category) ?
-            "Категория изменена!" : "Произошла ошибка!";
+        var isUpdated = await _categoryRepository.UpdateCategory(category);
+
+        return isUpdated ?
+            Result.Success("Категория изменена!") : 
+            Result.Failure("Произошла ошибка!");
     }
 
-    public async Task<string> DeleteCategory(string categoryName)
+    public async Task<Result> DeleteCategory(string categoryName)
     {
+        //var isExist = await _categoryRepository.CategoryExistByName(categoryName);
+        //if (isExist is false) 
+        //    return Result.Failure("Категория не найдена");
+
         var category = await _categoryRepository.GetCategoryByName(categoryName);
 
-        if (category is null) 
-            throw new Exception("Категория не найдена");
+        if (category is null)
+            return Result.Failure("Категория не найдена");
 
-        return await _categoryRepository.DeleteCategory(category) ?
-            "Категория удалена!" : "Произошла ошибка!";
+        var isUpdated = await _categoryRepository.DeleteCategory(category);
+
+        return isUpdated ?
+            Result.Success("Категория удалена!") :
+            Result.Failure("Произошла ошибка!");
     }
 }

@@ -54,15 +54,12 @@ public class CategoryControllers(IMapper mapper, CategoriesService categoryServi
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            var result = await _categoryService.CreateCategory(categoryRequest.Name);
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);            
-        }
+        var result = await _categoryService.CreateCategory(categoryRequest.Name);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
     }
 
     [HttpPut]
@@ -77,15 +74,12 @@ public class CategoryControllers(IMapper mapper, CategoriesService categoryServi
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            var result = await _categoryService.UpdateCategory(categoryRequest.Id, categoryRequest.Name);
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        var result = await _categoryService.UpdateCategory(categoryRequest.Id, categoryRequest.Name);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
     }
 
     [HttpDelete]
@@ -100,14 +94,11 @@ public class CategoryControllers(IMapper mapper, CategoriesService categoryServi
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            var result = await _categoryService.DeleteCategory(categoryRequest.Name);
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+        var result = await _categoryService.DeleteCategory(categoryRequest.Name);
+        
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
     }
 }
