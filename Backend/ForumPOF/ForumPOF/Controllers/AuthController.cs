@@ -22,10 +22,12 @@ public class AuthController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        if (!await _usersService.Register(request.UserName, request.Email, request.Password))
-            return BadRequest("User is register");
+        var result = await _usersService.Register(request.UserName, request.Email, request.Password);
+
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
         
-        return Ok("Successfull");
+        return Ok(result.Message);
     }
 
     [HttpPost("login")]
@@ -36,9 +38,12 @@ public class AuthController(UsersService usersService) : Controller
 
         var token = await usersService.Login(request.Email, request.Password);
 
-        Response.Cookies.Append("tasty-cookies", token);
+        if (!token.IsSuccess)
+            return BadRequest(token.Message);
 
-        return Ok(token);
+        Response.Cookies.Append("tasty-cookies", token.Message);
+
+        return Ok(token.Message);
     }
 
     [HttpPost("reestablish")]
@@ -47,15 +52,13 @@ public class AuthController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            await usersService.Reestablish(request.Email, request.Password);
-            return Ok("Пароль успешно изменен!");
-        }
-        catch (Exception e)
-        {
-            return BadRequest(e.Message);
-        }
+
+        var isReestablished = await usersService.Reestablish(request.Email, request.Password);
+
+        if (!isReestablished.IsSuccess)
+            return BadRequest(isReestablished.Message);
+
+        return Ok(isReestablished.Message);
     }
 
 

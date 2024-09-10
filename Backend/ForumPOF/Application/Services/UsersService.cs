@@ -21,43 +21,53 @@ public class UsersService(
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
-    public async Task<bool> Register(string userName, string email, string password)
+    public async Task<Result> Register(string userName, string email, string password)
     {
+        if (await _userRepository.UserExistByEmail(email))
+            return Result.Failure("Пользователь уже зарегистрирован");
+
+        if (await _userRepository.UserExistByUsername(email))
+            return Result.Failure("Имя пользователя занято");
+
         var hashedPassword = _passwordHasher.Generate(password);
 
         var user = User.Create(Ulid.NewUlid(), userName, hashedPassword, email, DateTime.Now);
 
-        return await _userRepository.CreateUser(user);
+        var isCreated = await _userRepository.CreateUser(user);
+        return isCreated ?
+            Result.Success("Успех!") :
+            Result.Failure("Ошибка");
     }
 
-    public async Task<string> Login(string email, string password)
+    public async Task<Result> Login(string email, string password)
     {
         var user = await _userRepository.GetUserByEmail(email);
 
         var result = _passwordHasher.Verify(password, user.Password);
 
         if (result is false)
-            throw new Exception("Ошибка авторизации! Проверьте логин или пароль");
+            return Result.Failure("Ошибка авторизации! Проверьте логин или пароль");
 
         var token = _jwtProvider.GenerateToken(user);
 
-        return token;
+        return Result.Success(token);
     }
 
-    public async Task<string> Reestablish(string email, string password)
+    public async Task<Result> Reestablish(string email, string password)
     {
 
         var user = await _userRepository.GetUserByEmail(email);
         if (user is null)
-            throw new Exception("Пользователь не найден");
+            return Result.Failure("Пользователь не найден");
 
         var passwordHash = _passwordHasher.Generate(password);
 
         user = User.Update(user, passwordHash, email, DateTime.Now);
-        return await _userRepository!.UpdateUser(user) ? 
-            "Пароль успешно изменен" 
-            : 
-            "Ошибка изменения пароля";
+
+        var isUpdated = await _userRepository.UpdateUser(user);
+        return isUpdated ?
+            Result.Success("Пароль успешно изменен") :
+            Result.Failure("Ошибка изменения пароля");
     }
 
     //////public Task<JwtSecurityToken> Verify(string jwt)

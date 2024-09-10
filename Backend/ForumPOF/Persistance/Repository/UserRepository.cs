@@ -14,6 +14,17 @@ public class UserRepository(ForumContext context) : IUserRepository
 {
     private readonly ForumContext _context = context;
 
+    public async Task<bool> UserExistByEmail(string email)
+    {
+        return await _context.Users.AnyAsync(u => u.Email == email);
+    }
+
+    public async Task<bool> UserExistByUsername(string username)
+    {
+        return await _context.Users.AnyAsync(u => u.UserName == username);
+    }
+
+
     public async Task<User> GetUserById(Ulid id)
     {
         return await _context.Users
@@ -37,9 +48,6 @@ public class UserRepository(ForumContext context) : IUserRepository
 
     public async Task<bool> CreateUser(User user)
     {
-        if (_context.Users.Any(u => u.Email == user.Email))
-            return false;
-
         _context.Add(user);
         return await Save();
     }
