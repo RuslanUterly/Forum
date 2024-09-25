@@ -49,8 +49,14 @@ public class TopicRepository(ForumContext context) : ITopicRepository
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public async Task<bool> CreateTopic(Topic topic)
+    public async Task<bool> CreateTopic(Tag[] tags, Topic topic)
     {
+        var topicTags = tags.Select(tag => 
+            TopicTag.Create(Ulid.NewUlid(), topic.Id, tag.Id)
+        );
+
+        await _context.AddRangeAsync(topicTags);
+
         _context.Add(topic);
         return await Save();
     }

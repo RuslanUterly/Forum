@@ -73,7 +73,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateTopic([FromBody] ActionTopicRequest createTopicRequest)
+    public async Task<IActionResult> CreateTopic([FromQuery] string[] tagTitles, [FromBody] ActionTopicRequest createTopicRequest)
     {
         if (createTopicRequest is null)
             return BadRequest(ModelState);
@@ -85,7 +85,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         {
             string jwt = Request.Cookies["tasty-cookies"]!;
 
-            var result = await _topicsService.Create(jwt, createTopicRequest.Title, createTopicRequest.CategoryName);
+            var result = await _topicsService.Create(jwt, createTopicRequest.Title, createTopicRequest.CategoryName, tagTitles);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);

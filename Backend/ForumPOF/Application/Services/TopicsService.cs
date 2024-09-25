@@ -1,5 +1,6 @@
 ﻿using Application.Helper;
 using Application.Interfaces.Auth;
+using Azure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
@@ -13,10 +14,12 @@ namespace Application.Services;
 
 public class TopicsService(
     ITopicRepository topicRepository,
+    ITagRepository tagRepository,
     ICategoryRepository categoryRepository,
     IJwtProvider jwtProvider)
 {
     private readonly ITopicRepository _topicRepository = topicRepository;
+    private readonly ITagRepository _tagRepository = tagRepository;
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
@@ -38,10 +41,17 @@ public class TopicsService(
         return await _topicRepository.GetTopicsByTitle(name);
     }
  
-    public async Task<Result> Create(string jwt, string title, string categoryName)
+    public async Task<Result> Create(string jwt, string title, string categoryName, params string[] tagTitles)
     {
         Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
         Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
+
+        var tagTasks = tagTitles.Select(_tagRepository.GetTagByTitle);
+        var tags = await Task.WhenAll(tagTasks);
+
+        foreach (var tag in tags) 
+            if (tag is null)
+                return Result.Failure("Добавляемый тэг не существует");
 
         //добавь проверку на валидность id
 
@@ -49,7 +59,7 @@ public class TopicsService(
 
         var topic = Topic.Create(Ulid.NewUlid(), title, userId, categoryId, DateTime.Now);
 
-        var isCreated = await _topicRepository.CreateTopic(topic);
+        var isCreated = await _topicRepository.CreateTopic(tags, topic);
 
         return isCreated? 
             Result.Success("Тема создана") :

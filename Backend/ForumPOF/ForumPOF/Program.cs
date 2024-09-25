@@ -31,12 +31,14 @@ namespace ForumPOF
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<ITopicRepository, TopicRepository>();
+            builder.Services.AddScoped<ITagRepository, TagRepository>();
             builder.Services.AddScoped<IJwtProvider, JwtProvider>();
             builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
             //builder.Services.AddScoped<IUsersService, UsersService>();
             builder.Services.AddScoped<UsersService>();
             builder.Services.AddScoped<CategoriesService>();
             builder.Services.AddScoped<TopicsService>();
+            builder.Services.AddScoped<TagsService>();
             //builder.Services.AddScoped<IUsersCrudService, UsersService>();
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
