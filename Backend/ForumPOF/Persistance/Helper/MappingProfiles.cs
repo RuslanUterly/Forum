@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Persistance.Dto.Categories;
+using Persistance.Dto.Topics;
 using Persistance.Dto.Users;
 using Persistance.Models;
 
@@ -13,5 +14,6 @@ public class MappingProfiles : Profile
         CreateMap<User, ChangeUserRequest>().ReverseMap();
         CreateMap<Category, CategoryRequest>().ReverseMap();
         CreateMap<Category, CategoryDetailsRequest>().ReverseMap();
+        CreateMap<Topic, TopicRequest>().ReverseMap();
     }
 }

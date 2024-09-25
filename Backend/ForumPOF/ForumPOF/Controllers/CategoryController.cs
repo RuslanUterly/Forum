@@ -11,7 +11,7 @@ namespace ForumPOF.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoryControllers(IMapper mapper, CategoriesService categoryService) : Controller
+public class CategoryController(IMapper mapper, CategoriesService categoryService) : Controller
 {
     private readonly IMapper _mapper = mapper;
     private readonly CategoriesService _categoryService = categoryService;

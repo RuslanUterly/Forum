@@ -1,5 +1,6 @@
 ﻿using Application.Helper;
 using Application.Interfaces.Auth;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;
@@ -12,15 +13,77 @@ namespace Application.Services;
 
 public class TopicsService(
     ITopicRepository topicRepository,
+    ICategoryRepository categoryRepository,
     IJwtProvider jwtProvider)
 {
     private readonly ITopicRepository _topicRepository = topicRepository;
+    private readonly ICategoryRepository _categoryRepository = categoryRepository;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
-    //public Task Create(string jwt, string Title, string categoryName)
-    //{
-    //    Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
-    //    Ulid categoryId 
-    //    var topic = Topic.Create(Ulid.NewUlid(), Title, )
-    //}
+
+    public async Task<IEnumerable<Topic>> RecieveAll()
+    {
+        return await _topicRepository.GetTopics();
+    }
+
+    public async Task<IEnumerable<Topic>> RecieveByUser(string jwt)
+    {
+        Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
+
+        return await _topicRepository.GetTopicsByUser(userId);
+    }
+
+    public async Task<IEnumerable<Topic>> RecieveByName(string name)
+    {
+        return await _topicRepository.GetTopicsByTitle(name);
+    }
+ 
+    public async Task<Result> Create(string jwt, string title, string categoryName)
+    {
+        Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
+        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
+
+        //добавь проверку на валидность id
+
+        //в след раз пиши подробнее я не помню уже че делать
+
+        var topic = Topic.Create(Ulid.NewUlid(), title, userId, categoryId, DateTime.Now);
+
+        var isCreated = await _topicRepository.CreateTopic(topic);
+
+        return isCreated? 
+            Result.Success("Тема создана") :
+            Result.Failure("Произошла ошибка");
+    }
+
+    public async Task<Result> Update(string jwt, Ulid topicId, string title, string content, string categoryName)
+    {
+        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
+        var topic = await _topicRepository.GetTopicsById(topicId);
+
+        if (topic is null)
+            return Result.Failure("Темы не существует");
+
+        topic = Topic.Update(topic, title, content, categoryId, DateTime.Now);
+
+        var isUpdated = await _topicRepository.UpdateTopic(topic);
+
+        return isUpdated ?
+            Result.Success("Тема обновлена") :
+            Result.Failure("Произошла ошибка");
+    }
+
+    public async Task<Result> Delete(string jwt, Ulid topicId)
+    {
+        var topic = await _topicRepository.GetTopicsById(topicId);
+
+        if (topic is null)
+            return Result.Failure("Темы не существует");
+
+        var isRemoved = await _topicRepository.DeleteTopic(topic);
+
+        return isRemoved ?
+            Result.Success("Тема удалена") :
+            Result.Failure("Произошла ошибка");
+    }
 }

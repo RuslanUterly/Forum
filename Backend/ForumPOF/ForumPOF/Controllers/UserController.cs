@@ -12,7 +12,7 @@ namespace ForumPOF.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class UserControllers(IMapper mapper, UsersService usersService) : Controller
+public class UserController(IMapper mapper, UsersService usersService) : Controller
 {
     private readonly IMapper? _mapper = mapper;
     private readonly UsersService _usersService = usersService;

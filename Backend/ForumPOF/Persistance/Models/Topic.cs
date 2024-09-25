@@ -24,7 +24,7 @@ public class Topic
 
     public static Topic Create(
         Ulid id, 
-        string Title, 
+        string title, 
         Ulid userId, 
         Ulid categoryId,
         DateTime created)
@@ -32,10 +32,27 @@ public class Topic
         return new Topic()
         {
             Id = id,
-            Title = Title,
+            Title = title,
             UserId = userId,
             CategoryId = categoryId,
+            Content = "заглушка",
             Created = created
         };
+    }
+
+    public static Topic Update(
+        Topic topic,
+        string title,
+        string content,
+        Ulid categoryId,
+        DateTime updated
+        )
+    {
+        topic.Title = title;
+        topic.Content = content;
+        topic.CategoryId = categoryId;
+        topic.Updated = updated;
+
+        return topic;
     }
 }

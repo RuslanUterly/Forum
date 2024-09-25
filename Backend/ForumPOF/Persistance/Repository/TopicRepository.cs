@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ForumPOF.Contracts.Users;
+using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
@@ -17,6 +18,10 @@ public class TopicRepository(ForumContext context) : ITopicRepository
     public async Task<ICollection<Topic>> GetTopics()
     {
         return await _context.Topics
+            .Include(t => t.User)
+            .Include(t => t.Posts)
+            .Include(t => t.Category)
+            .Include(t => t.ThreadTags)
             .AsNoTracking()
             .ToArrayAsync();
     }
@@ -29,12 +34,19 @@ public class TopicRepository(ForumContext context) : ITopicRepository
             .ToArrayAsync();
     }
 
-    public async Task<ICollection<Topic>> GetTopicsByUser(User user)
+    public async Task<ICollection<Topic>> GetTopicsByUser(Ulid userId)
     {
         return await _context.Topics
             .AsNoTracking()
-            .Where(t => t.UserId == user.Id)
+            .Where(t => t.UserId == userId)
             .ToArrayAsync();
+    }
+
+    public async Task<Topic> GetTopicsById(Ulid id)
+    {
+        return await _context.Topics 
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 
     public async Task<bool> CreateTopic(Topic topic)

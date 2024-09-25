@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces.Auth;
 using Application.Services;
 using Persistance.Models;
+using Persistance.Repository;
 using Persistance.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -19,8 +20,9 @@ public static class Reciever
         return Ulid.Parse(token.Payload["userId"].ToString());
     }
 
-    //public static Ulid CategoryUlid(string categoryName)
-    //{
-        
-    //}
+    public async static Task<Ulid> CategoryUlid(ICategoryRepository repository, string categoryName)
+    {
+        var category = await repository.GetCategoryByName(categoryName);
+        return category.Id;
+    }
 }

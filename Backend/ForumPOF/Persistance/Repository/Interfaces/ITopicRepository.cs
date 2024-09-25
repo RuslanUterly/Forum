@@ -11,7 +11,8 @@ public interface ITopicRepository
 {
     Task<ICollection<Topic>> GetTopics();
     Task<ICollection<Topic>> GetTopicsByTitle(string title);
-    Task<ICollection<Topic>> GetTopicsByUser(User user);
+    Task<ICollection<Topic>> GetTopicsByUser(Ulid userId);
+    Task<Topic> GetTopicsById(Ulid id);
 
     Task<bool> CreateTopic(Topic topic);
     Task<bool> UpdateTopic(Topic topic);
