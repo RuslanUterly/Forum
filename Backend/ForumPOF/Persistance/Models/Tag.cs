@@ -14,4 +14,24 @@ public class Tag
     public string Title { get; set; }
 
     public virtual ICollection<TopicTag> TopicTags { get; set; }
+
+    public static Tag Create(
+        Ulid id,
+        string title)
+    {
+        return new Tag()
+        {
+            Id = id,
+            Title = title
+        };
+    }
+
+    public static Tag Update(
+        Tag tag,
+        string title)
+    {
+        tag.Title = title;
+
+        return tag;
+    }
 }
