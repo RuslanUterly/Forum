@@ -17,10 +17,10 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
     private readonly TopicsService _topicsService = topicsService;
 
     [HttpGet("recieveAllTopics")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<TopicRequest>))]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopics()
     {
-        var topics = _mapper.Map<IEnumerable<TopicRequest>>(await _topicsService.RecieveAll());
+        var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveAll());
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -29,7 +29,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
     }
 
     [HttpGet("recieveByUser")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<TopicRequest>))]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopicsByUser()
     {
         if (!ModelState.IsValid)
@@ -39,7 +39,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         {
             string jwt = Request.Cookies["tasty-cookies"]!;
 
-            var topics = _mapper.Map<IEnumerable<TopicRequest>>(await _topicsService.RecieveByUser(jwt));
+            var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveByUser(jwt));
 
             return Ok(topics);
         }
@@ -49,9 +49,9 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         }
     }
 
-    [HttpGet("recieveByName")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<TopicRequest>))]
-    public async Task<IActionResult> GetTopicsByName([FromBody] string name)
+    [HttpGet("{name}")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
+    public async Task<IActionResult> GetTopicsByName(string name)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -60,7 +60,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         {
             string jwt = Request.Cookies["tasty-cookies"]!;
 
-            var topics = _mapper.Map<IEnumerable<TopicRequest>>(await _topicsService.RecieveByName(name));
+            var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveByName(name));
 
             return Ok(topics);
         }

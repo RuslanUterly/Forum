@@ -69,7 +69,7 @@ public class TagsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Update(string title)
+    public async Task<Result> Delete(string title)
     {
         //var isExist = await _tagRepository.TagExistByTitle(title);
 
