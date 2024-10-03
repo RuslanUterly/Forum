@@ -1,4 +1,5 @@
-﻿using ForumPOF.Contracts.Users;
+﻿using Azure;
+using ForumPOF.Contracts.Users;
 using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Models;
@@ -22,6 +23,7 @@ public class TopicRepository(ForumContext context) : ITopicRepository
             .Include(t => t.Posts)
             .Include(t => t.Category)
             .Include(t => t.ThreadTags)
+                .ThenInclude(tt => tt.Tag)
             .AsNoTracking()
             .ToArrayAsync();
     }
@@ -63,12 +65,73 @@ public class TopicRepository(ForumContext context) : ITopicRepository
 
     public async Task<bool> DeleteTopic(Topic topic)
     {
+        var topicTags = topic.ThreadTags;
+        _context.TopicTags.RemoveRange(topicTags);
+
         _context.Remove(topic);
         return await Save();
     }
 
-    public async Task<bool> UpdateTopic(Topic topic)
+    public async Task<bool> UpdateTopic(Tag[] tags, Topic topic)
     {
+        var topicTags = await _context.TopicTags
+            .Where(tt => tt.TopicId == topic.Id)
+            .Select(tt => tt.Tag)
+            .ToArrayAsync();
+
+        //IEnumerable<Tag> newTags;
+        //if (topicTags.Length > tags.Length)
+        //{
+        //    //удаление
+        //    newTags = topicTags.Except(tags);
+        //    _context.TopicTags.Remove(await _context.TopicTags.FirstOrDefaultAsync(tt => tt.Tag == newTags));
+        //}
+        //else 
+        //{
+        //    //добавление
+        //    newTags = tags.Except(topicTags);
+        //    var newTopicTags = newTags.Select(tag =>
+        //        TopicTag.Create(Ulid.NewUlid(), topic.Id, tag.Id)
+        //     );
+
+        //    await _context.AddRangeAsync(topicTags);
+        //}
+
+        //var currentTagIds = topicTags
+        //    .Select(t => t.Id)
+        //    .ToHashSet();
+
+        //var newTagIds = tags
+        //    .Select(t => t.Id)
+        //    .ToHashSet();
+
+        // Теги для удаления
+
+
+        var tagsToRemove = topicTags
+            .Where(t => !tags.Contains(t))
+            .ToList();
+
+        // Теги для добавления
+        var tagsToAdd = tags
+            .Where(t => !topicTags.Contains(t))
+            .Select(tag => 
+                TopicTag.Create(Ulid.NewUlid(), topic.Id, tag.Id)
+            );
+
+        if (tagsToRemove.Any())
+        {
+            var tagsToRemoveIds = tagsToRemove.Select(t => t.Id);
+            var topicTagsToRemove = await _context.TopicTags
+                .Where(tt => tagsToRemoveIds.Contains(tt.TagId))
+                .ToListAsync();
+
+            _context.TopicTags.RemoveRange(topicTagsToRemove);
+        }
+
+        if (tagsToAdd.Any())
+            await _context.TopicTags.AddRangeAsync(tagsToAdd);
+
         _context.Update(topic);
         return await Save();
     }

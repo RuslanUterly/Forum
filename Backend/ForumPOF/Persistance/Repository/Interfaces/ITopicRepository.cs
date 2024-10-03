@@ -15,7 +15,7 @@ public interface ITopicRepository
     Task<Topic> GetTopicsById(Ulid id);
 
     Task<bool> CreateTopic(Tag[] tags, Topic topic);
-    Task<bool> UpdateTopic(Topic topic);
+    Task<bool> UpdateTopic(Tag[] tags, Topic topic);
     Task<bool> DeleteTopic(Topic topic);
 
     Task<bool> Save();

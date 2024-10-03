@@ -102,7 +102,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateTopic([FromQuery] Ulid topicId, [FromBody] ActionTopicRequest updateTopicRequest)
+    public async Task<IActionResult> UpdateTopic([FromQuery] string[] tagTitles, [FromQuery] Ulid topicId, [FromBody] ActionTopicRequest updateTopicRequest)
     {
         if (updateTopicRequest is null)
             return BadRequest(ModelState);
@@ -114,7 +114,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         {
             string jwt = Request.Cookies["tasty-cookies"]!;
 
-            var result = await _topicsService.Update(jwt, topicId, updateTopicRequest.Title, updateTopicRequest.Content, updateTopicRequest.CategoryName);
+            var result = await _topicsService.Update(jwt, topicId, updateTopicRequest.Title, updateTopicRequest.Content, updateTopicRequest.CategoryName, tagTitles);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);

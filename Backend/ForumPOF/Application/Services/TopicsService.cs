@@ -67,7 +67,7 @@ public class TopicsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Update(string jwt, Ulid topicId, string title, string content, string categoryName)
+    public async Task<Result> Update(string jwt, Ulid topicId, string title, string content, string categoryName, params string[] tagTitles)
     {
         Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
         var topic = await _topicRepository.GetTopicsById(topicId);
@@ -75,9 +75,16 @@ public class TopicsService(
         if (topic is null)
             return Result.Failure("Темы не существует");
 
+        var tagTasks = tagTitles.Select(_tagRepository.GetTagByTitle);
+        var tags = await Task.WhenAll(tagTasks);
+
+        foreach (var tag in tags)
+            if (tag is null)
+                return Result.Failure("Добавляемый тэг не существует");
+
         topic = Topic.Update(topic, title, content, categoryId, DateTime.Now);
 
-        var isUpdated = await _topicRepository.UpdateTopic(topic);
+        var isUpdated = await _topicRepository.UpdateTopic(tags, topic);
 
         return isUpdated ?
             Result.Success("Тема обновлена") :
