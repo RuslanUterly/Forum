@@ -85,7 +85,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         {
             string jwt = Request.Cookies["tasty-cookies"]!;
 
-            var result = await _topicsService.Create(jwt, createTopicRequest.Title, createTopicRequest.CategoryName, tagTitles);
+            var result = await _topicsService.Create(jwt, createTopicRequest.Title, createTopicRequest.Content, createTopicRequest.CategoryName, tagTitles);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);

@@ -41,10 +41,13 @@ public class TopicsService(
         return await _topicRepository.GetTopicsByTitle(name);
     }
  
-    public async Task<Result> Create(string jwt, string title, string categoryName, params string[] tagTitles)
+    public async Task<Result> Create(string jwt, string title, string content, string categoryName, params string[] tagTitles)
     {
         Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
         Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
+
+        if (categoryId == default)
+            return Result.Failure("Категории не существует");
 
         var tagTasks = tagTitles.Select(_tagRepository.GetTagByTitle);
         var tags = await Task.WhenAll(tagTasks);
@@ -58,7 +61,7 @@ public class TopicsService(
 
         //в след раз пиши подробнее я не помню уже че делать
 
-        var topic = Topic.Create(Ulid.NewUlid(), title, userId, categoryId, DateTime.Now);
+        var topic = Topic.Create(Ulid.NewUlid(), title, content, userId, categoryId, DateTime.Now);
 
         var isCreated = await _topicRepository.CreateTopic(tags, topic);
 
@@ -70,6 +73,10 @@ public class TopicsService(
     public async Task<Result> Update(string jwt, Ulid topicId, string title, string content, string categoryName, params string[] tagTitles)
     {
         Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
+
+        if (categoryId == default)
+            return Result.Failure("Категории не существует");
+
         var topic = await _topicRepository.GetTopicsById(topicId);
 
         if (topic is null)

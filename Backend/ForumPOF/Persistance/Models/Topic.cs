@@ -25,6 +25,7 @@ public class Topic
     public static Topic Create(
         Ulid id, 
         string title, 
+        string content,
         Ulid userId, 
         Ulid categoryId,
         DateTime created)
@@ -35,7 +36,7 @@ public class Topic
             Title = title,
             UserId = userId,
             CategoryId = categoryId,
-            Content = "заглушка",
+            Content = content,
             Created = created
         };
     }
