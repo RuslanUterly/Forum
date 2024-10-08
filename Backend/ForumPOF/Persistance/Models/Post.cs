@@ -19,4 +19,33 @@ public class Post
     public User? User { get; set; }
 
     public virtual ICollection<Comment> Comments { get; set; }
+
+    public static Post Create(
+        Ulid id,
+        Ulid topicId,
+        Ulid userId,
+        string content,
+        DateTime created)
+    {
+        return new Post()
+        {
+            Id = id,
+            TopicId = topicId,
+            UserId = userId,
+            Content = content,
+            Created = created
+        };
+    }
+
+    public static Post Update(
+        Post post,
+        string content,
+        DateTime updated
+        )
+    {
+        post.Content = content;
+        post.Updated = updated;
+
+        return post;
+    }
 }

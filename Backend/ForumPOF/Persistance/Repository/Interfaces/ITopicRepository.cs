@@ -9,6 +9,8 @@ namespace Persistance.Repository.Interfaces;
 
 public interface ITopicRepository
 {
+    Task<bool> TopicExistById(Ulid id);
+
     Task<ICollection<Topic>> GetTopics();
     Task<ICollection<Topic>> GetTopicsByTitle(string title);
     Task<ICollection<Topic>> GetTopicsByUser(Ulid userId);

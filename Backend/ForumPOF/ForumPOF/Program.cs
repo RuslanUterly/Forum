@@ -31,6 +31,7 @@ public class Program
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ITopicRepository, TopicRepository>();
         builder.Services.AddScoped<ITagRepository, TagRepository>();
+        builder.Services.AddScoped<IPostRepository, PostRepository>();
         builder.Services.AddScoped<IJwtProvider, JwtProvider>();
         builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
         //builder.Services.AddScoped<IUsersService, UsersService>();
@@ -38,6 +39,7 @@ public class Program
         builder.Services.AddScoped<CategoriesService>();
         builder.Services.AddScoped<TopicsService>();
         builder.Services.AddScoped<TagsService>();
+        builder.Services.AddScoped<PostsService>();
         //builder.Services.AddScoped<IUsersCrudService, UsersService>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -16,6 +16,13 @@ public class TopicRepository(ForumContext context) : ITopicRepository
 {
     private readonly ForumContext _context = context;
 
+    public async Task<bool> TopicExistById(Ulid id)
+    {
+        return await _context.Topics
+            .AsNoTracking()
+            .AnyAsync(t => t.Id == id);
+    }
+
     public async Task<ICollection<Topic>> GetTopics()
     {
         return await _context.Topics
