@@ -37,15 +37,16 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveByUser(jwt));
 
             return Ok(topics);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -58,15 +59,16 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveByName(name));
 
             return Ok(topics);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -83,7 +85,8 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var result = await _topicsService.Create(jwt, createTopicRequest.Title, createTopicRequest.Content, createTopicRequest.CategoryName, tagTitles);
 
@@ -92,9 +95,9 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
             return Ok(result.Message);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -112,7 +115,8 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var result = await _topicsService.Update(jwt, topicId, updateTopicRequest.Title, updateTopicRequest.Content, updateTopicRequest.CategoryName, tagTitles);
 
@@ -121,9 +125,9 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
             return Ok(result.Message);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -138,7 +142,8 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var result = await _topicsService.Delete(jwt, topicId);
 
@@ -147,9 +152,9 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
 
             return Ok(result.Message);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 }

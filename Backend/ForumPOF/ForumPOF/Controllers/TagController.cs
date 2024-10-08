@@ -50,7 +50,7 @@ public class TagController(IMapper mapper, TagsService tagsService) : Controller
 
         try
         {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string jwt) || string.IsNullOrWhiteSpace(jwt))
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrWhiteSpace(jwt))
                 return Unauthorized();
 
             var result = await _tagsService.Create(tagRequest.Title);
@@ -60,9 +60,9 @@ public class TagController(IMapper mapper, TagsService tagsService) : Controller
 
             return Ok(result.Message);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -80,7 +80,8 @@ public class TagController(IMapper mapper, TagsService tagsService) : Controller
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var result = await _tagsService.Update(tagRequest.Id, tagRequest.Title);
 
@@ -89,9 +90,9 @@ public class TagController(IMapper mapper, TagsService tagsService) : Controller
 
             return Ok(result.Message);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -106,7 +107,8 @@ public class TagController(IMapper mapper, TagsService tagsService) : Controller
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var result = await _tagsService.Delete(tagRequest.Title);
 
@@ -115,9 +117,9 @@ public class TagController(IMapper mapper, TagsService tagsService) : Controller
 
             return Ok(result.Message);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 }

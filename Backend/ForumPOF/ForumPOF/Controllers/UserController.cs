@@ -39,15 +39,16 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             var user = _mapper!.Map<DataUserRequest>(await _usersService.Recieve(jwt));
 
             return Ok(user);
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -66,7 +67,8 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
             if (!await _usersService.Update(jwt, changeUser.Email, changeUser.Password))
             {
@@ -75,9 +77,9 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
             }
             return Ok("Successfull");
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 
@@ -92,18 +94,19 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
 
         try
         {
-            string jwt = Request.Cookies["tasty-cookies"]!;
+            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+                return Unauthorized();
 
-            if(!await _usersService.Delete(jwt))
+            if (!await _usersService.Delete(jwt))
             {
                 ModelState.AddModelError("", "Smth went wrong");
                 return StatusCode(500, ModelState);
             }
             return Ok("Successfull");
         }
-        catch (Exception _)
+        catch (Exception ex)
         {
-            return Unauthorized();
+            return BadRequest(ex.Message);
         }
     }
 }

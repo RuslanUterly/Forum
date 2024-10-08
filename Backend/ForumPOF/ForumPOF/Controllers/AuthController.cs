@@ -52,7 +52,6 @@ public class AuthController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-
         var isReestablished = await usersService.Reestablish(request.Email, request.Password);
 
         if (!isReestablished.IsSuccess)
