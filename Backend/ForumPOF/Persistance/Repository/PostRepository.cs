@@ -27,6 +27,15 @@ public class PostRepository(ForumContext context) : IPostRepository
             .ToArrayAsync();
     }
 
+    public async Task<IEnumerable<Post>> GetPostsByTopic(Ulid topicId)
+    {
+        return await _context.Topics
+            .Where(t => t.Id == topicId)
+            .SelectMany(t => t.Posts)
+            .AsNoTracking()
+            .ToArrayAsync();
+    }
+
     public async Task<Post> GetPostById(Ulid id)
     {
         return await _context.Posts

@@ -24,6 +24,11 @@ public class PostsService(
         return await _postRepository.GetPosts();
     }
 
+    public async Task<IEnumerable<Post>> RecieveByTopic(Ulid topicId)
+    {
+        return await _postRepository.GetPostsByTopic(topicId);
+    }
+
     public async Task<Post> RecieveById(Ulid id)
     {
         return await _postRepository.GetPostById(id);

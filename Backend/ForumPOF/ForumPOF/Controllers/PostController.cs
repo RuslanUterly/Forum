@@ -25,8 +25,20 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
         return Ok(posts);
     }
 
-    [HttpGet("{postId}")]
+    [HttpGet("{topicId}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<PostDetailRequest>))]
+    public async Task<IActionResult> GetPostsByTopic(Ulid topicId)
+    {
+        var posts = _mapper!.Map<IEnumerable<PostDetailRequest>>(await _postsService.RecieveByTopic(topicId));
+
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        return Ok(posts);
+    }
+
+    [HttpGet("{postId}")]
+    [ProducesResponseType(200, Type = typeof(PostDetailRequest))]
     public async Task<IActionResult> GetPostById(Ulid postId)
     {
         if (postId == default)
