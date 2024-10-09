@@ -28,6 +28,7 @@ public class TopicRepository(ForumContext context) : ITopicRepository
         return await _context.Topics
             .Include(t => t.User)
             .Include(t => t.Posts)
+                .ThenInclude(p => p.Comments)
             .Include(t => t.Category)
             .Include(t => t.ThreadTags)
                 .ThenInclude(tt => tt.Tag)

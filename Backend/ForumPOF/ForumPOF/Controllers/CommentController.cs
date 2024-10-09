@@ -7,6 +7,8 @@ using System.ComponentModel.Design;
 
 namespace ForumPOF.Controllers;
 
+[Route("api/[controller]")]
+[ApiController]
 public class CommentController(IMapper mapper, CommentsService commentsService) : Controller
 {
     private readonly IMapper _mapper = mapper;
@@ -24,9 +26,9 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
         return Ok(comments);
     }
 
-    [HttpGet("{postId}")]
+    [HttpGet("postId")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommentDetailsRequest>))]
-    public async Task<IActionResult> GetCommentsByPost(Ulid postId)
+    public async Task<IActionResult> GetCommentsByPost([FromQuery] Ulid postId)
     {
         var comments = _mapper!.Map<IEnumerable<CommentDetailsRequest>>(await _commentsService.RecieveByPost(postId));
 
@@ -36,9 +38,9 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
         return Ok(comments);
     }
 
-    [HttpGet("{commentId}")]
+    [HttpGet("commentId")]
     [ProducesResponseType(200, Type = typeof(CommentDetailsRequest))]
-    public async Task<IActionResult> GetCommentById(Ulid commentId)
+    public async Task<IActionResult> GetCommentById([FromQuery] Ulid commentId)
     {
         if (commentId == default)
             return BadRequest(ModelState);
