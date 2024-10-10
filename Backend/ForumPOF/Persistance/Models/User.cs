@@ -21,7 +21,12 @@ public class User
     public ICollection<Post>? Posts { get; set; }
     public ICollection<Comment>? Comments { get; set; }
 
-    public static User Create(Ulid id, string userName, string password, string email, DateTime created)
+    public static User Create(
+        Ulid id, 
+        string userName, 
+        string password, 
+        string email, 
+        DateTime created)
     {
         return new User()
         {
@@ -33,11 +38,16 @@ public class User
         };
     }
 
-    public static User Update(User user, string password, string email, DateTime updated)
+    public static User Update(
+        User user, 
+        string password,
+        string email, 
+        DateTime updated)
     {
         user.Email = email;
         user.Password = password;
         user.Updated = updated;
+
         return user;
     }
 }

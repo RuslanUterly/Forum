@@ -57,9 +57,9 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateUser([FromBody] LoginUserRequest changeUser)
+    public async Task<IActionResult> UpdateUser([FromBody] ChangeUserRequest userRequest)
     {
-        if (changeUser == null)
+        if (userRequest == null)
             return BadRequest(ModelState);
 
         if (!ModelState.IsValid)
@@ -70,7 +70,7 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            if (!await _usersService.Update(jwt, changeUser.Email, changeUser.Password))
+            if (!await _usersService.Update(jwt, userRequest.Email, userRequest.Password))
             {
                 ModelState.AddModelError("", "Smth went wrong");
                 return StatusCode(500, ModelState);

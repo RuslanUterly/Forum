@@ -56,11 +56,6 @@ public class TopicsService(
             if (tag is null)
                 return Result.Failure("Добавляемый тэг не существует");
 
-        //добавь проверку на валидность id
-        //это значит что если categoryId неверн код упадет
-
-        //в след раз пиши подробнее я не помню уже че делать
-
         var topic = Topic.Create(Ulid.NewUlid(), title, content, userId, categoryId, DateTime.Now);
 
         var isCreated = await _topicRepository.CreateTopic(tags, topic);
@@ -70,7 +65,7 @@ public class TopicsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Update(string jwt, Ulid topicId, string title, string content, string categoryName, params string[] tagTitles)
+    public async Task<Result> Update(Ulid topicId, string title, string content, string categoryName, params string[] tagTitles)
     {
         Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
 
@@ -98,7 +93,7 @@ public class TopicsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Delete(string jwt, Ulid topicId)
+    public async Task<Result> Delete(Ulid topicId)
     {
         var topic = await _topicRepository.GetTopicsById(topicId);
 

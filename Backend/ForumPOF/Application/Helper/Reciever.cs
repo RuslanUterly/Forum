@@ -15,9 +15,11 @@ public static class Reciever
 {
     public static Ulid UserUlid(IJwtProvider jwtProvider, string jwt)
     {
-        var token= jwtProvider.VerifyToken(jwt);
+        var token = jwtProvider.VerifyToken(jwt);
+        if (!Ulid.TryParse(token.Payload["userId"].ToString(), out Ulid id))
+            return default;
 
-        return Ulid.Parse(token.Payload["userId"].ToString());
+        return id;
     }
 
     public async static Task<Ulid> CategoryUlid(ICategoryRepository repository, string categoryName)

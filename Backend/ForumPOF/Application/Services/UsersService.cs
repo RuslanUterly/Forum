@@ -55,7 +55,6 @@ public class UsersService(
 
     public async Task<Result> Reestablish(string email, string password)
     {
-
         var user = await _userRepository.GetUserByEmail(email);
         if (user is null)
             return Result.Failure("Пользователь не найден");
@@ -70,38 +69,42 @@ public class UsersService(
             Result.Failure("Ошибка изменения пароля");
     }
 
-    //////public Task<JwtSecurityToken> Verify(string jwt)
-    //////{
-    //////    return Task.FromResult(_jwtProvider.VerifyToken(jwt));
-    //////}
-
-    public async Task<User> Recieve(string jwt)
-    {
-        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
-        
-        return await _userRepository.GetUserById(id);
-    }
-
     public async Task<IEnumerable<User>> RecieveAll()
     {
         return await _userRepository.GetUsers();
     }
 
-    public async Task<bool> Update(string jwt, string email, string password)
+    public async Task<Result> Update(string jwt, string email, string password)
     {
-        var user = await Recieve(jwt);
+        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
+        if (id == default)
+            return Result.Failure("Пользователя не существует");
+
+        var user = await _userRepository.GetUserById(id);
 
         var passwordHash = _passwordHasher.Generate(password);
 
         user = User.Update(user, passwordHash, email, DateTime.Now);
 
-        return await _userRepository!.UpdateUser(user);    
+        var isUpdated = await _userRepository!.UpdateUser(user);
+
+        return isUpdated ?
+            Result.Success("Пользователь изменен") :
+            Result.Failure("Произошла ошибка");    
     }
 
-    public async Task<bool> Delete(string jwt)
+    public async Task<Result> Delete(string jwt)
     {
-        var user = await Recieve(jwt);
+        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
+        if (id == default)
+            return Result.Failure("Пользователя не существует");
 
-        return await _userRepository.DeleteUser(user);
+        var user = await _userRepository.GetUserById(id);
+
+        var isRemoved = await _userRepository.DeleteUser(user);
+
+        return isRemoved ? 
+            Result.Success("Пользователь удален") :
+            Result.Failure("Произошла ошибка");
     }
 }
