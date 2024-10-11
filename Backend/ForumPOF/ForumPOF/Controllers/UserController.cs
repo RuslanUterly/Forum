@@ -42,7 +42,7 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var user = _mapper!.Map<DataUserRequest>(await _usersService.Recieve(jwt));
+            var user = _mapper!.Map<DataUserRequest>(await _usersService.RecieveUser(jwt));
 
             return Ok(user);
         }
@@ -70,12 +70,12 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            if (!await _usersService.Update(jwt, userRequest.Email, userRequest.Password))
-            {
-                ModelState.AddModelError("", "Smth went wrong");
-                return StatusCode(500, ModelState);
-            }
-            return Ok("Successfull");
+            var result = await _usersService.Update(jwt, userRequest.Email, userRequest.Password);
+
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
+
+            return Ok(result.Message);
         }
         catch (Exception ex)
         {
@@ -97,12 +97,12 @@ public class UserController(IMapper mapper, UsersService usersService) : Control
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            if (!await _usersService.Delete(jwt))
-            {
-                ModelState.AddModelError("", "Smth went wrong");
-                return StatusCode(500, ModelState);
-            }
-            return Ok("Successfull");
+            var result = await _usersService.Delete(jwt);
+
+            if (!result.IsSuccess)
+                return BadRequest(result.Message);
+            
+            return Ok(result);
         }
         catch (Exception ex)
         {

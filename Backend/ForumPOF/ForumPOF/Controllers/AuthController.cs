@@ -67,5 +67,4 @@ public class AuthController(UsersService usersService) : Controller
         Response.Cookies.Delete("tasty-cookies");
         return Ok("Successfull");
     }
-    
 }

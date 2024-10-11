@@ -14,7 +14,6 @@ public class CategoriesService(
 {
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
 
-
     public async Task<IEnumerable<Category>> RecieveAll()
     {
         return await _categoryRepository.GetCategories();

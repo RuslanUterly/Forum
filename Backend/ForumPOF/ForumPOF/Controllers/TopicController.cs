@@ -118,7 +118,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _topicsService.Update(jwt, updateTopicRequest.TopicId, updateTopicRequest.Title, updateTopicRequest.Content, updateTopicRequest.CategoryName, tagTitles);
+            var result = await _topicsService.Update(updateTopicRequest.TopicId, updateTopicRequest.Title, updateTopicRequest.Content, updateTopicRequest.CategoryName, tagTitles);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
@@ -145,7 +145,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _topicsService.Delete(jwt, topicId);
+            var result = await _topicsService.Delete(topicId);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
