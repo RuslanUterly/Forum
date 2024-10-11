@@ -11,16 +11,15 @@ namespace ForumPOF.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CategoryController(IMapper mapper, CategoriesService categoryService) : Controller
+public class CategoryController(CategoriesService categoryService) : Controller
 {
-    private readonly IMapper _mapper = mapper;
     private readonly CategoriesService _categoryService = categoryService;
 
     [HttpGet("recieveAllCategories")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<CategoryDetailsRequest>))]
     public async Task<IActionResult> GetCategories()
     {
-        var categories = _mapper!.Map<List<CategoryDetailsRequest>>(await _categoryService!.RecieveAll());
+        var categories = await _categoryService!.RecieveAll();
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -38,7 +37,7 @@ public class CategoryController(IMapper mapper, CategoriesService categoryServic
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var categoriy = _mapper!.Map<CategoryDetailsRequest>(await _categoryService!.RecieveByName(categoryName));
+        var categoriy = await _categoryService!.RecieveByName(categoryName);
 
         return Ok(categoriy);
     }
@@ -46,7 +45,7 @@ public class CategoryController(IMapper mapper, CategoriesService categoryServic
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateCategory(CategoryRequest categoryRequest)
+    public async Task<IActionResult> CreateCategory(CategoryCreateRequest categoryRequest)
     {
         if (categoryRequest is null)
             return BadRequest(ModelState);
@@ -54,7 +53,7 @@ public class CategoryController(IMapper mapper, CategoriesService categoryServic
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _categoryService.CreateCategory(categoryRequest.Name);
+        var result = await _categoryService.CreateCategory(categoryRequest);
 
         if (!result.IsSuccess)
             return BadRequest(result.Message);
@@ -66,7 +65,7 @@ public class CategoryController(IMapper mapper, CategoriesService categoryServic
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateCategory(CategoryDetailsRequest categoryRequest)
+    public async Task<IActionResult> UpdateCategory(CategoryUpdateRequest categoryRequest)
     {
         if (categoryRequest is null)
             return BadRequest(ModelState);
@@ -74,7 +73,8 @@ public class CategoryController(IMapper mapper, CategoriesService categoryServic
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _categoryService.UpdateCategory(categoryRequest.Id, categoryRequest.Name);
+        //var result = await _categoryService.UpdateCategory(categoryRequest.Id, categoryRequest.Name);
+        var result = await _categoryService.UpdateCategory(categoryRequest);
 
         if (!result.IsSuccess)
             return BadRequest(result.Message);
@@ -86,15 +86,15 @@ public class CategoryController(IMapper mapper, CategoriesService categoryServic
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteCategory(CategoryRequest categoryRequest)
+    public async Task<IActionResult> DeleteCategory([FromQuery] string name)
     {
-        if (categoryRequest is null)
+        if (name is null)
             return BadRequest(ModelState);
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _categoryService.DeleteCategory(categoryRequest.Name);
+        var result = await _categoryService.DeleteCategory(name);
         
         if (!result.IsSuccess)
             return BadRequest(result.Message);

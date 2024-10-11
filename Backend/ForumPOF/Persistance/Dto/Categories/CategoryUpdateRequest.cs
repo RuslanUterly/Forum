@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Persistance.Dto.Categories;
 
-public class CategoryRequest
+public class CategoryUpdateRequest
 {
+    public Ulid Id { get; set; }
     public string Name { get; set; }
 }
