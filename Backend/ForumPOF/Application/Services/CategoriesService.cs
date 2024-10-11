@@ -26,17 +26,10 @@ public class CategoriesService(
 
     public async Task<Result> CreateCategory(string categoryName)
     {
-        //var isExist = await _categoryRepository.CategoryExistByName(categoryName);
-
-        //if (isExist is not false)
-        //    return Result.Failure("Категория уже создана");
-
-        var category = await _categoryRepository.GetCategoryByName(categoryName);
-        
-        if (category is not null)
+        if (await _categoryRepository.CategoryExistByName(categoryName))
             return Result.Failure("Категория уже создана");
 
-        category = Category.Create(Ulid.NewUlid(), categoryName, DateTime.Now);
+        var category = Category.Create(Ulid.NewUlid(), categoryName, DateTime.Now);
         
         var isCreated = await _categoryRepository.CreateCategory(category);
 
@@ -47,15 +40,10 @@ public class CategoriesService(
 
     public async Task<Result> UpdateCategory(Ulid ulid, string categoryName)
     {
-        //var isExist = await _categoryRepository.CategoryExistById(ulid);
-
-        //if (isExist is not true)
-        //    return Result.Failure("Категория не найдена");
+        if (!await _categoryRepository.CategoryExistById(ulid))
+            return Result.Failure("Категория не найдена");
 
         var category = await _categoryRepository.GetCategoryById(ulid);
-
-        if (category is null)
-            return Result.Failure("Категория не найдена");
 
         category = Category.Update(category, categoryName);
 
@@ -68,14 +56,10 @@ public class CategoriesService(
 
     public async Task<Result> DeleteCategory(string categoryName)
     {
-        //var isExist = await _categoryRepository.CategoryExistByName(categoryName);
-        //if (isExist is false) 
-        //    return Result.Failure("Категория не найдена");
+        if (!await _categoryRepository.CategoryExistByName(categoryName))
+            return Result.Failure("Категория не найдена");
 
         var category = await _categoryRepository.GetCategoryByName(categoryName);
-
-        if (category is null)
-            return Result.Failure("Категория не найдена");
 
         var isUpdated = await _categoryRepository.DeleteCategory(category);
 

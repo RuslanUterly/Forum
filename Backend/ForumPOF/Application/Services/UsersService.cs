@@ -55,15 +55,17 @@ public class UsersService(
 
     public async Task<Result> Reestablish(string email, string password)
     {
-        var user = await _userRepository.GetUserByEmail(email);
-        if (user is null)
+        if (!await _userRepository.UserExistByEmail(email))
             return Result.Failure("Пользователь не найден");
 
         var passwordHash = _passwordHasher.Generate(password);
 
+        var user = await _userRepository.GetUserByEmail(email);
+
         user = User.Update(user, passwordHash, email, DateTime.Now);
 
         var isUpdated = await _userRepository.UpdateUser(user);
+
         return isUpdated ?
             Result.Success("Пароль успешно изменен") :
             Result.Failure("Ошибка изменения пароля");
@@ -90,9 +92,9 @@ public class UsersService(
         if (id == default)
             return Result.Failure("Пользователя не существует");
 
-        var user = await _userRepository.GetUserById(id);
-
         var passwordHash = _passwordHasher.Generate(password);
+
+        var user = await _userRepository.GetUserById(id);
 
         user = User.Update(user, passwordHash, email, DateTime.Now);
 

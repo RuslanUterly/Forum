@@ -34,14 +34,12 @@ public class TagsService(
 
     public async Task<Result> Create(string title)
     {
-        var isExist = await _tagRepository.TagExistByTitle(title);
-
-        if (isExist)
+        if (await _tagRepository.TagExistByTitle(title))
             return Result.Failure("Тэг уже создан");
 
-        var topic = Tag.Create(Ulid.NewUlid(), title);
+        var tag = Tag.Create(Ulid.NewUlid(), title);
 
-        var isCreated = await _tagRepository.CreateTag(topic);
+        var isCreated = await _tagRepository.CreateTag(tag);
 
         return isCreated ?
             Result.Success("Тэг создан") :
@@ -50,19 +48,14 @@ public class TagsService(
 
     public async Task<Result> Update(Ulid id, string title)
     {
-        //var isExist = await _tagRepository.TagExistById(id);
-
-        //if (!isExist)
-        //    return Result.Failure("Тэга не существует");
-
-        var topic = await _tagRepository.GetTagById(id);
-
-        if (topic is null)
+        if (!await _tagRepository.TagExistById(id))
             return Result.Failure("Тэга не существует");
 
-        topic = Tag.Update(topic, title);
+        var tag = await _tagRepository.GetTagById(id);
 
-        var isUpdated = await _tagRepository.UpdateTag(topic);
+        tag = Tag.Update(tag, title);
+
+        var isUpdated = await _tagRepository.UpdateTag(tag);
 
         return isUpdated ?
             Result.Success("Тэг изменен") :
@@ -71,17 +64,12 @@ public class TagsService(
 
     public async Task<Result> Delete(string title)
     {
-        //var isExist = await _tagRepository.TagExistByTitle(title);
-
-        //if (!isExist)
-        //    return Result.Failure("Тэга не существует");
-
-        var topic = await _tagRepository.GetTagByTitle(title);
-
-        if (topic is null)
+        if (!await _tagRepository.TagExistByTitle(title))
             return Result.Failure("Тэга не существует");
 
-        var isDeleted = await _tagRepository.DeleteTag(topic);
+        var tag = await _tagRepository.GetTagByTitle(title);
+
+        var isDeleted = await _tagRepository.DeleteTag(tag);
 
         return isDeleted ?
             Result.Success("Тэг удален") :
