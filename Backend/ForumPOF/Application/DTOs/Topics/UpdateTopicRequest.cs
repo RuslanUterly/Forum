@@ -1,4 +1,4 @@
-﻿namespace Persistance.Dto.Topics;
+﻿namespace Application.DTOs.Topics;
 
 public class UpdateTopicRequest
 {

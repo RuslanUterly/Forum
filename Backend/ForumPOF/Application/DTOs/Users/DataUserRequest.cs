@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Persistance.Dto.Users;
+﻿namespace Application.DTOs.Users;
 
 public class DataUserRequest
 {

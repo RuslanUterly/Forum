@@ -1,4 +1,4 @@
-﻿namespace Persistance.Dto.Users;
+﻿namespace Application.DTOs.Users;
 
 public class ChangeUserRequest
 {

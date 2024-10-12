@@ -1,5 +1,4 @@
 ﻿using Azure;
-using ForumPOF.Contracts.Users;
 using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Models;

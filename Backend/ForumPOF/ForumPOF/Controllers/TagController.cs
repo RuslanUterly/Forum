@@ -1,8 +1,7 @@
-﻿using Application.Services;
+﻿using Application.DTOs.Tags;
+using Application.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Dto.Tags;
-using Persistance.Dto.Topics;
 
 namespace ForumPOF.Controllers;
 

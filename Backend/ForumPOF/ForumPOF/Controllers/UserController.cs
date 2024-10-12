@@ -1,10 +1,9 @@
-﻿using Application.Interfaces.Auth;
+﻿using Application.DTOs.Users;
+using Application.Interfaces.Auth;
 using Application.Services;
 using AutoMapper;
-using ForumPOF.Contracts.Users;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Dto.Users;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 

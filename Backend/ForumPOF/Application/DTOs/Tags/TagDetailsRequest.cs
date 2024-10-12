@@ -1,4 +1,4 @@
-﻿namespace Persistance.Dto.Tags;
+﻿namespace Application.DTOs.Tags;
 
 public class TagDetailsRequest
 {

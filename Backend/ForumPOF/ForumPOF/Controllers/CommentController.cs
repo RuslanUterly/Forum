@@ -1,7 +1,7 @@
-﻿using Application.Services;
+﻿using Application.DTOs.Comments;
+using Application.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Dto.Comments;
 using Persistance.Models;
 using System.ComponentModel.Design;
 
@@ -99,7 +99,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _commentsService.Update(commentRequest.Id, commentRequest.Content);
+            var result = await _commentsService.Update(/*commentRequest.Id, commentRequest.Content*/ commentRequest);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);

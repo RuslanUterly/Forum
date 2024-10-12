@@ -1,4 +1,4 @@
-﻿namespace ForumPOF.Contracts.Users;
+﻿namespace Application.DTOs.Users;
 
 public class RegisterUserRequest
 {

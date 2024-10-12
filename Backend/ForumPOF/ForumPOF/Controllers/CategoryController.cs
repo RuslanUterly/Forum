@@ -1,10 +1,9 @@
-﻿using Application.Interfaces.Auth;
+﻿using Application.DTOs.Categories;
+using Application.Interfaces.Auth;
 using Application.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Dto.Categories;
-using Persistance.Dto.Users;
 using Persistance.Models;
 
 namespace ForumPOF.Controllers;

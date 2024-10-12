@@ -1,4 +1,4 @@
-﻿namespace Persistance.Dto.Comments;
+﻿namespace Application.DTOs.Comments;
 
 public class CommentDetailsRequest
 {

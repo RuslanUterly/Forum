@@ -1,4 +1,4 @@
-﻿namespace Persistance.Dto.Posts;
+﻿namespace Application.DTOs.Posts;
 
 public class PostDetailRequest
 {

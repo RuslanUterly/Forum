@@ -1,5 +1,7 @@
-﻿using Application.Helper;
+﻿using Application.DTOs.Comments;
+using Application.Helper;
 using Application.Interfaces.Auth;
+using AutoMapper;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;
@@ -13,10 +15,12 @@ namespace Application.Services;
 public class CommentsService(
     ICommentRepository commentRepository,
     IPostRepository postRepository,
+    IMapper mapper,
     IJwtProvider jwtProvider)
 {
     private readonly ICommentRepository _commentRepository = commentRepository;
     private readonly IPostRepository _postRepository = postRepository;
+    private readonly IMapper _mapper = mapper;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
     public async Task<IEnumerable<Comment>> RecieveAll()
@@ -50,14 +54,16 @@ public class CommentsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Update(Ulid id, string content)
+    public async Task<Result> Update(/*Ulid id, string content*/UpdateCommentRequest commentRequest)
     {
-        if (!await _commentRepository.CommentExistById(id))
+        if (!await _commentRepository.CommentExistById(commentRequest.Id))
             return Result.Failure("Комментария не существует");
 
-        var comment = await _commentRepository.GetCommentById(id);
+        var comment = await _commentRepository.GetCommentById(commentRequest.Id);
 
-        comment = Comment.Update(comment, content, DateTime.Now);
+        _mapper.Map(commentRequest, comment);
+
+        //comment = Comment.Update(comment, content, DateTime.Now);
 
         var isUpdated = await _commentRepository.UpdateComment(comment);
 

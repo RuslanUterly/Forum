@@ -1,6 +1,6 @@
-﻿using Application.Helper;
+﻿using Application.DTOs.Categories;
+using Application.Helper;
 using AutoMapper;
-using Persistance.Dto.Categories;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;

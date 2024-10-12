@@ -1,4 +1,4 @@
-﻿namespace Persistance.Dto.Categories;
+﻿namespace Application.DTOs.Categories;
 
 public class CategoryDetailsRequest
 {
