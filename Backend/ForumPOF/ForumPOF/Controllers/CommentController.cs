@@ -14,7 +14,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
     private readonly IMapper _mapper = mapper;
     private readonly CommentsService _commentsService = commentsService;
 
-    [HttpGet("recieveAllComments")]
+    [HttpGet("recieveAll")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommentDetailsRequest>))]
     public async Task<IActionResult> GetComments()
     {
@@ -26,9 +26,9 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
         return Ok(comments);
     }
 
-    [HttpGet("postId")]
+    [HttpGet("recieveByPost/{postId}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommentDetailsRequest>))]
-    public async Task<IActionResult> GetCommentsByPost([FromQuery] Ulid postId)
+    public async Task<IActionResult> GetCommentsByPost(Ulid postId)
     {
         var comments = _mapper!.Map<IEnumerable<CommentDetailsRequest>>(await _commentsService.RecieveByPost(postId));
 
@@ -38,9 +38,9 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
         return Ok(comments);
     }
 
-    [HttpGet("commentId")]
+    [HttpGet("recieve/{commentId}")]
     [ProducesResponseType(200, Type = typeof(CommentDetailsRequest))]
-    public async Task<IActionResult> GetCommentById([FromQuery] Ulid commentId)
+    public async Task<IActionResult> GetCommentById(Ulid commentId)
     {
         if (commentId == default)
             return BadRequest(ModelState);
@@ -48,9 +48,9 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var comments = _mapper!.Map<CommentDetailsRequest>(await _commentsService.RecieveCommentById(commentId));
+        var comment = _mapper!.Map<CommentDetailsRequest>(await _commentsService.RecieveCommentById(commentId));
 
-        return Ok(comments);
+        return Ok(comment);
     }
 
     [HttpPost]

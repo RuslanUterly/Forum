@@ -1,6 +1,7 @@
 using Application.Interfaces.Auth;
 using Application.Services;
 using ForumPOF.Extensions;
+using ForumPOF.ModelBinders;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,8 +25,12 @@ public class Program
 
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        builder.Services.AddControllers().AddJsonOptions(x =>
-            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+        builder.Services.AddControllers(options =>
+        {
+            options.ModelBinderProviders.Insert(0, new UlidEntityBinderProvider());
+        })
+            .AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
