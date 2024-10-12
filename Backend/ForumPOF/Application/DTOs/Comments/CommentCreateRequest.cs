@@ -1,7 +1,7 @@
 ﻿namespace Application.DTOs.Comments;
 
-public class UpdateCommentRequest
+public class CommentCreateRequest
 {
-    public Ulid Id { get; set; }
+    public Ulid PostId { get; set; }
     public string Content { get; set; }
 }

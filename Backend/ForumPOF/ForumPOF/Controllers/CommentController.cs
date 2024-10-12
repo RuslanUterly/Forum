@@ -56,7 +56,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateComment([FromBody] CreateCommentRequest commentRequest)
+    public async Task<IActionResult> CreateComment([FromBody] CommentCreateRequest commentRequest)
     {
         if (commentRequest is null)
             return BadRequest(ModelState);
@@ -69,7 +69,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _commentsService.Create(jwt, commentRequest.PostId, commentRequest.Content);
+            var result = await _commentsService.Create(jwt, commentRequest);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
@@ -86,7 +86,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateComment([FromBody] UpdateCommentRequest commentRequest)
+    public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateRequest commentRequest)
     {
         if (commentRequest is null)
             return BadRequest(ModelState);
@@ -99,7 +99,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _commentsService.Update(/*commentRequest.Id, commentRequest.Content*/ commentRequest);
+            var result = await _commentsService.Update(commentRequest);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);

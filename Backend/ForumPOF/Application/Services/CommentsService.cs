@@ -38,15 +38,31 @@ public class CommentsService(
         return await _commentRepository.GetCommentById(id);
     }
 
-    public async Task<Result> Create(string jwt, Ulid postId, string content)
+    //public async Task<Result> Create(string jwt, Ulid postId, string content)
+    //{
+    //    var userId = Reciever.UserUlid(_jwtProvider, jwt);
+
+    //    if (!await _postRepository.PostExistById(postId))
+    //        return Result.Failure("Пост не существует");
+
+    //    var comment = Comment.Create(Ulid.NewUlid(), postId, userId, content, DateTime.Now);
+
+    //    var isCreated = await _commentRepository.CreateComment(comment);
+
+    //    return isCreated ?
+    //        Result.Success("Комментарий создан") :
+    //        Result.Failure("Произошла ошибка");
+    //}
+    
+    public async Task<Result> Create(string jwt, CommentCreateRequest commentRequest)
     {
         var userId = Reciever.UserUlid(_jwtProvider, jwt);
 
-        if (!await _postRepository.PostExistById(postId))
+        if (!await _postRepository.PostExistById(commentRequest.PostId))
             return Result.Failure("Пост не существует");
-
-        var comment = Comment.Create(Ulid.NewUlid(), postId, userId, content, DateTime.Now);
         
+        var comment = _mapper.Map<Comment>(commentRequest, opt => opt.Items["userId"] = userId);
+
         var isCreated = await _commentRepository.CreateComment(comment);
 
         return isCreated ?
@@ -54,7 +70,25 @@ public class CommentsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Update(/*Ulid id, string content*/UpdateCommentRequest commentRequest)
+    //public async Task<Result> Update(/*Ulid id, string content*/CommentUpdateRequest commentRequest)
+    //{
+    //    if (!await _commentRepository.CommentExistById(commentRequest.Id))
+    //        return Result.Failure("Комментария не существует");
+
+    //    var comment = await _commentRepository.GetCommentById(commentRequest.Id);
+
+    //    _mapper.Map(commentRequest, comment);
+
+    //    //comment = Comment.Update(comment, content, DateTime.Now);
+
+    //    var isUpdated = await _commentRepository.UpdateComment(comment);
+
+    //    return isUpdated ?
+    //        Result.Success("Комментарий обновлен") :
+    //        Result.Failure("Произошла ошибка");
+    //}
+    
+    public async Task<Result> Update(CommentUpdateRequest commentRequest)
     {
         if (!await _commentRepository.CommentExistById(commentRequest.Id))
             return Result.Failure("Комментария не существует");
@@ -62,8 +96,6 @@ public class CommentsService(
         var comment = await _commentRepository.GetCommentById(commentRequest.Id);
 
         _mapper.Map(commentRequest, comment);
-
-        //comment = Comment.Update(comment, content, DateTime.Now);
 
         var isUpdated = await _commentRepository.UpdateComment(comment);
 

@@ -20,15 +20,14 @@ public class MappingProfiles : Profile
         CreateMap<Category, CategoryDetailsRequest>().ReverseMap();
 
         CreateMap<CategoryCreateRequest, Category>()
-            //.ConstructUsing(category => Category.Create(Ulid.NewUlid(), category.Name, DateTime.Now));
             .AfterMap((src, desc) => desc.Id = Ulid.NewUlid())
-            .AfterMap((src, desc) => desc.Name = src.Name)
+            //.AfterMap((src, desc) => desc.Name = src.Name)
             .AfterMap((src, desc) => desc.Created = DateTime.Now);
 
-        CreateMap<CategoryUpdateRequest, Category>()
-            .ForMember(category => category.Id, options => options.Ignore())
-            .ForMember(category => category.Created, options => options.Ignore())
-            .ForMember(category => category.Topics, options => options.Ignore());
+        CreateMap<CategoryUpdateRequest, Category>();
+            //.ForMember(src => src.Id, options => options.Ignore())
+            //.ForMember(src => src.Created, options => options.Ignore())
+            //.ForMember(src => src.Topics, options => options.Ignore());
 
         CreateMap<Topic, TopicDetailsRequest>().ReverseMap();
 
@@ -38,10 +37,12 @@ public class MappingProfiles : Profile
         CreateMap<Post, PostDetailRequest>().ReverseMap();
 
         CreateMap<Comment, CommentDetailsRequest>().ReverseMap();
-        //CreateMap<UpdateCommentRequest, Comment>()
-        //    .AfterMap((src, desc) => Comment.Update(desc, src.Content, DateTime.Now));
-        CreateMap<UpdateCommentRequest, Comment>()
-            .AfterMap((src, desc) => desc.Content = src.Content)
+        CreateMap<CommentCreateRequest, Comment>()
+            .AfterMap((src, desc) => desc.Id = Ulid.NewUlid())
+            .AfterMap((src, desc, opt) => desc.UserId = (Ulid)opt.Items["userId"])
+            .AfterMap((src, desc) => desc.Created = DateTime.Now);
+        CreateMap<CommentUpdateRequest, Comment>()
+            //.AfterMap((src, desc) => desc.Content = src.Content)
             .AfterMap((src, desc) => desc.Updated = DateTime.Now);
     }
 }
