@@ -1,5 +1,7 @@
-﻿using Application.Helper;
+﻿using Application.DTOs.Users;
+using Application.Helper;
 using Application.Interfaces.Auth;
+using Mapster;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;
@@ -21,17 +23,33 @@ public class UsersService(
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
-    public async Task<Result> Register(string userName, string email, string password)
+    public async Task<IEnumerable<UserDetailsRequest>> RecieveAll()
     {
-        if (await _userRepository.UserExistByEmail(email))
+        var users = await _userRepository.GetUsers();
+        return users.Adapt<IEnumerable<UserDetailsRequest>>();
+    }
+
+    public async Task<UserDetailsRequest> RecieveUser(string jwt)
+    {
+        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
+        if (id == default)
+            return new UserDetailsRequest();
+
+        var user = await _userRepository.GetUserById(id);
+        return user.Adapt<UserDetailsRequest>();
+    }
+
+    public async Task<Result> Register(RegisterUserRequest userRequest)
+    {
+        if (await _userRepository.UserExistByEmail(userRequest.Email))
             return Result.Failure("Пользователь уже зарегистрирован");
 
-        if (await _userRepository.UserExistByUsername(email))
+        if (await _userRepository.UserExistByUsername(userRequest.Email))
             return Result.Failure("Имя пользователя занято");
 
-        var hashedPassword = _passwordHasher.Generate(password);
+        var hashedPassword = _passwordHasher.Generate(userRequest.Password);
 
-        var user = User.Create(Ulid.NewUlid(), userName, hashedPassword, email, DateTime.Now);
+        var user = User.Create(Ulid.NewUlid(), userRequest.UserName, hashedPassword, userRequest.Email, DateTime.Now);
 
         var isCreated = await _userRepository.CreateUser(user);
         return isCreated ?
@@ -39,11 +57,11 @@ public class UsersService(
             Result.Failure("Ошибка");
     }
 
-    public async Task<Result> Login(string email, string password)
+    public async Task<Result> Login(LoginUserRequest userRequest)
     {
-        var user = await _userRepository.GetUserByEmail(email);
+        var user = await _userRepository.GetUserByEmail(userRequest.Email);
 
-        var result = _passwordHasher.Verify(password, user.Password);
+        var result = _passwordHasher.Verify(userRequest.Password, user.Password);
 
         if (result is false)
             return Result.Failure("Ошибка авторизации! Проверьте логин или пароль");
@@ -53,16 +71,16 @@ public class UsersService(
         return Result.Success(token);
     }
 
-    public async Task<Result> Reestablish(string email, string password)
+    public async Task<Result> Reestablish(ReestablishUserRequest userRequest)
     {
-        if (!await _userRepository.UserExistByEmail(email))
+        if (!await _userRepository.UserExistByEmail(userRequest.Email))
             return Result.Failure("Пользователь не найден");
 
-        var passwordHash = _passwordHasher.Generate(password);
+        var passwordHash = _passwordHasher.Generate(userRequest.Password);
 
-        var user = await _userRepository.GetUserByEmail(email);
+        var user = await _userRepository.GetUserByEmail(userRequest.Email);
 
-        user = User.Update(user, passwordHash, email, DateTime.Now);
+        user = User.Update(user, passwordHash, userRequest.Email, DateTime.Now);
 
         var isUpdated = await _userRepository.UpdateUser(user);
 
@@ -71,32 +89,17 @@ public class UsersService(
             Result.Failure("Ошибка изменения пароля");
     }
 
-    public async Task<IEnumerable<User>> RecieveAll()
-    {
-        return await _userRepository.GetUsers();
-    }
-
-    public async Task<User> RecieveUser(string jwt)
-    {
-        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
-        if (id == default)
-            return new User();
-
-        var user = await _userRepository.GetUserById(id);
-        return user;
-    }
-
-    public async Task<Result> Update(string jwt, string email, string password)
+    public async Task<Result> Update(string jwt, UserUpdateRequest userRequest)
     {
         Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
         if (id == default)
             return Result.Failure("Пользователя не существует");
 
-        var passwordHash = _passwordHasher.Generate(password);
+        var passwordHash = _passwordHasher.Generate(userRequest.Password);
 
         var user = await _userRepository.GetUserById(id);
 
-        user = User.Update(user, passwordHash, email, DateTime.Now);
+        user = User.Update(user, passwordHash, userRequest.Email, DateTime.Now);
 
         var isUpdated = await _userRepository!.UpdateUser(user);
 

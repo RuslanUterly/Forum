@@ -1,7 +1,7 @@
 ﻿namespace Application.DTOs.Posts;
 
-public class UpdatePostRequest
+public class PostCreateRequest
 {
-    public Ulid PostId { get; set; }
+    public Ulid TopicId { get; set; }
     public string? Content { get; set; }
 }

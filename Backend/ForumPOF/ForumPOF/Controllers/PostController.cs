@@ -1,22 +1,20 @@
 ﻿using Application.DTOs.Posts;
 using Application.Services;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class PostController(IMapper mapper, PostsService postsService) : Controller
+public class PostController(PostsService postsService) : Controller
 {
-    private readonly IMapper _mapper = mapper;
     private readonly PostsService _postsService = postsService;
 
     [HttpGet("recieveAllPosts")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<PostDetailRequest>))]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<PostDetailsRequest>))]
     public async Task<IActionResult> GetPosts()
     {
-        var posts = _mapper!.Map<IEnumerable<PostDetailRequest>>(await _postsService.RecieveAll());
+        var posts = await _postsService.RecieveAll();
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -24,11 +22,11 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
         return Ok(posts);
     }
 
-    [HttpGet("topicId")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<PostDetailRequest>))]
-    public async Task<IActionResult> GetPostsByTopic([FromQuery] Ulid topicId)
+    [HttpGet("recieveByTopic/{topicId}")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<PostDetailsRequest>))]
+    public async Task<IActionResult> GetPostsByTopic(Ulid topicId)
     {
-        var posts = _mapper!.Map<IEnumerable<PostDetailRequest>>(await _postsService.RecieveByTopic(topicId));
+        var posts = await _postsService.RecieveByTopic(topicId);
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -36,9 +34,9 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
         return Ok(posts);
     }
 
-    [HttpGet("postId")]
-    [ProducesResponseType(200, Type = typeof(PostDetailRequest))]
-    public async Task<IActionResult> GetPostById([FromQuery] Ulid postId)
+    [HttpGet("recive/{postId}")]
+    [ProducesResponseType(200, Type = typeof(PostDetailsRequest))]
+    public async Task<IActionResult> GetPostById(Ulid postId)
     {
         if (postId == default)
             return BadRequest(ModelState);
@@ -46,7 +44,7 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var post = _mapper!.Map<PostDetailRequest>(await _postsService.RecieveById(postId));
+        var post = await _postsService.RecieveById(postId);
 
         return Ok(post);
     }
@@ -54,7 +52,7 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest postRequest)
+    public async Task<IActionResult> CreatePost([FromBody] PostCreateRequest postRequest)
     {
         if (postRequest is null)
             return BadRequest(ModelState);
@@ -67,7 +65,7 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _postsService.Create(jwt, postRequest.TopicId, postRequest.Content!);
+            var result = await _postsService.Create(jwt, postRequest);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
@@ -84,7 +82,7 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdatePost([FromBody] UpdatePostRequest postRequest)
+    public async Task<IActionResult> UpdatePost([FromBody] PostUpdateRequest postRequest)
     {
         if (postRequest is null)
             return BadRequest(ModelState);
@@ -97,7 +95,7 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _postsService.Update(postRequest.PostId, postRequest.Content!);
+            var result = await _postsService.Update(postRequest);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
@@ -110,11 +108,11 @@ public class PostController(IMapper mapper, PostsService postsService) : Control
         }
     }
 
-    [HttpDelete]
+    [HttpDelete("{postId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeletePost([FromQuery] Ulid postId)
+    public async Task<IActionResult> DeletePost(Ulid postId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

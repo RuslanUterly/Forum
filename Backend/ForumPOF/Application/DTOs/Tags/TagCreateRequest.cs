@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs.Tags;
 
-public class TagRequest
+public class TagCreateRequest
 {
     public string Title { get; set; }
 }

@@ -1,8 +1,5 @@
 ﻿using Application.DTOs.Categories;
-using Application.Interfaces.Auth;
 using Application.Services;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Persistance.Models;
 
@@ -81,19 +78,19 @@ public class CategoryController(CategoriesService categoryService) : Controller
         return Ok(result.Message);
     }
 
-    [HttpDelete]
+    [HttpDelete("{categoryName}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteCategory([FromQuery] string name)
+    public async Task<IActionResult> DeleteCategory(string categoryName)
     {
-        if (name is null)
+        if (categoryName is null)
             return BadRequest(ModelState);
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _categoryService.DeleteCategory(name);
+        var result = await _categoryService.DeleteCategory(categoryName);
         
         if (!result.IsSuccess)
             return BadRequest(result.Message);

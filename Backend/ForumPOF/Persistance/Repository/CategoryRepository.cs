@@ -24,7 +24,7 @@ public class CategoryRepository(ForumContext context) : ICategoryRepository
         return await _context.Categories.AnyAsync(c => c.Id == id);
     }
 
-    public async Task<ICollection<Category>> GetCategories()
+    public async Task<IEnumerable<Category>> GetCategories()
     {
         return await _context.Categories.ToArrayAsync();
     }

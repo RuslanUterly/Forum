@@ -1,24 +1,20 @@
 ﻿using Application.DTOs.Comments;
 using Application.Services;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Models;
-using System.ComponentModel.Design;
 
 namespace ForumPOF.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class CommentController(IMapper mapper, CommentsService commentsService) : Controller
+public class CommentController(CommentsService commentsService) : Controller
 {
-    private readonly IMapper _mapper = mapper;
     private readonly CommentsService _commentsService = commentsService;
 
     [HttpGet("recieveAll")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommentDetailsRequest>))]
     public async Task<IActionResult> GetComments()
     {
-        var comments = _mapper!.Map<IEnumerable<CommentDetailsRequest>>(await _commentsService.RecieveAll());
+        var comments = await _commentsService.RecieveAll();
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -30,7 +26,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommentDetailsRequest>))]
     public async Task<IActionResult> GetCommentsByPost(Ulid postId)
     {
-        var comments = _mapper!.Map<IEnumerable<CommentDetailsRequest>>(await _commentsService.RecieveByPost(postId));
+        var comments = await _commentsService.RecieveByPost(postId);
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -48,7 +44,7 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var comment = _mapper!.Map<CommentDetailsRequest>(await _commentsService.RecieveCommentById(commentId));
+        var comment = await _commentsService.RecieveCommentById(commentId);
 
         return Ok(comment);
     }
@@ -112,11 +108,11 @@ public class CommentController(IMapper mapper, CommentsService commentsService) 
         }
     }
 
-    [HttpDelete]
+    [HttpDelete("{commentId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteComment([FromQuery] Ulid commentId)
+    public async Task<IActionResult> DeleteComment(Ulid commentId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

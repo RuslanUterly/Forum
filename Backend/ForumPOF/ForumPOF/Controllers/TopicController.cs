@@ -1,25 +1,20 @@
 ﻿using Application.DTOs.Topics;
-using Application.Interfaces.Auth;
 using Application.Services;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Models;
 
 namespace ForumPOF.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class TopicController(IMapper mapper, TopicsService topicsService) : Controller
+public class TopicController(TopicsService topicsService) : Controller
 {
-    private readonly IMapper _mapper = mapper;
     private readonly TopicsService _topicsService = topicsService;
 
     [HttpGet("recieveAllTopics")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopics()
     {
-        var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveAll());
+        var topics = await _topicsService.RecieveAll();
 
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -39,7 +34,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveByUser(jwt));
+            var topics = await _topicsService.RecieveByUser(jwt);
 
             return Ok(topics);
         }
@@ -49,9 +44,9 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         }
     }
 
-    [HttpGet("{name}")]
+    [HttpGet("{topicTitle}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
-    public async Task<IActionResult> GetTopicsByName(string name)
+    public async Task<IActionResult> GetTopicsByName(string topicTitle)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -61,7 +56,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var topics = _mapper.Map<IEnumerable<TopicDetailsRequest>>(await _topicsService.RecieveByName(name));
+            var topics = await _topicsService.RecieveByName(topicTitle);
 
             return Ok(topics);
         }
@@ -74,7 +69,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
     [HttpPost]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateTopic([FromQuery] string[] tagTitles, [FromBody] CreateTopicRequest createTopicRequest)
+    public async Task<IActionResult> CreateTopic([FromQuery] string[] tagTitles, [FromBody] TopicCreateRequest createTopicRequest)
     {
         if (createTopicRequest is null)
             return BadRequest(ModelState);
@@ -87,7 +82,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _topicsService.Create(jwt, createTopicRequest.Title, createTopicRequest.Content, createTopicRequest.CategoryName, tagTitles);
+            var result = await _topicsService.Create(jwt, createTopicRequest, tagTitles);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
@@ -104,7 +99,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateTopic([FromQuery] string[] tagTitles, [FromBody] UpdateTopicRequest updateTopicRequest)
+    public async Task<IActionResult> UpdateTopic([FromQuery] string[] tagTitles, [FromBody] TopicUpdateRequest updateTopicRequest)
     {
         if (updateTopicRequest is null)
             return BadRequest(ModelState);
@@ -117,7 +112,7 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
             if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
                 return Unauthorized();
 
-            var result = await _topicsService.Update(updateTopicRequest.TopicId, updateTopicRequest.Title, updateTopicRequest.Content, updateTopicRequest.CategoryName, tagTitles);
+            var result = await _topicsService.Update(updateTopicRequest, tagTitles);
 
             if (!result.IsSuccess)
                 return BadRequest(result.Message);
@@ -130,11 +125,11 @@ public class TopicController(IMapper mapper, TopicsService topicsService) : Cont
         }
     }
 
-    [HttpDelete]
+    [HttpDelete("{topicId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteTitle([FromQuery] Ulid topicId)
+    public async Task<IActionResult> DeleteTitle(Ulid topicId)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);

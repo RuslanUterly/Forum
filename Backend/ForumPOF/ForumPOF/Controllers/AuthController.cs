@@ -1,11 +1,6 @@
 ﻿using Application.DTOs.Users;
-using Application.Interfaces.Auth;
 using Application.Services;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Models;
-using System.Diagnostics.Eventing.Reader;
 
 namespace ForumPOF.Controllers;
 
@@ -21,7 +16,7 @@ public class AuthController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var result = await _usersService.Register(request.UserName, request.Email, request.Password);
+        var result = await _usersService.Register(request);
 
         if (!result.IsSuccess)
             return BadRequest(result.Message);
@@ -35,7 +30,7 @@ public class AuthController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var token = await usersService.Login(request.Email, request.Password);
+        var token = await usersService.Login(request);
 
         if (!token.IsSuccess)
             return BadRequest(token.Message);
@@ -46,12 +41,12 @@ public class AuthController(UsersService usersService) : Controller
     }
 
     [HttpPost("reestablish")]
-    public async Task<IActionResult> Reestablish([FromBody] LoginUserRequest request)
+    public async Task<IActionResult> Reestablish([FromBody] ReestablishUserRequest request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var isReestablished = await usersService.Reestablish(request.Email, request.Password);
+        var isReestablished = await usersService.Reestablish(request);
 
         if (!isReestablished.IsSuccess)
             return BadRequest(isReestablished.Message);

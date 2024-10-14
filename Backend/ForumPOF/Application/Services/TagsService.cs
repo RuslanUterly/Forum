@@ -1,5 +1,8 @@
-﻿using Application.Helper;
+﻿using Application.DTOs.Tags;
+using Application.DTOs.Topics;
+using Application.Helper;
 using Application.Interfaces.Auth;
+using Mapster;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;
@@ -17,27 +20,30 @@ public class TagsService(
     private readonly ITagRepository _tagRepository = tagRepository;
     private readonly IJwtProvider _jwtProvider= jwtProvider;
 
-    public async Task<IEnumerable<Tag>> RecieveAll()
+    public async Task<IEnumerable<TagDetailsRequest>> RecieveAll()
     {
-        return await _tagRepository.GetTags();
+        var tags = await _tagRepository.GetTags();
+        return tags.Adapt<IEnumerable<TagDetailsRequest>>();
     }
 
-    public async Task<IEnumerable<Topic>> RecieveByTopic(string tagTitle)
+    public async Task<IEnumerable<TopicDetailsRequest>> RecieveByTopic(string tagTitle)
     {
-        return await _tagRepository.GetTopicsByTag(tagTitle);
+        var topic = await _tagRepository.GetTopicsByTag(tagTitle);
+        return topic.Adapt<IEnumerable<TopicDetailsRequest>>();
     }
 
-    public async Task<Tag> RecieveByTitle(string tagTitle)
+    public async Task<TagDetailsRequest> RecieveByTitle(string tagTitle)
     {
-        return await _tagRepository.GetTagByTitle(tagTitle);
+        var tag = await _tagRepository.GetTagByTitle(tagTitle);
+        return tag.Adapt<TagDetailsRequest>();
     }
 
-    public async Task<Result> Create(string title)
+    public async Task<Result> Create(TagCreateRequest tagRequest)
     {
-        if (await _tagRepository.TagExistByTitle(title))
+        if (await _tagRepository.TagExistByTitle(tagRequest.Title))
             return Result.Failure("Тэг уже создан");
 
-        var tag = Tag.Create(Ulid.NewUlid(), title);
+        var tag = Tag.Create(Ulid.NewUlid(), tagRequest.Title);
 
         var isCreated = await _tagRepository.CreateTag(tag);
 
@@ -46,14 +52,14 @@ public class TagsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Update(Ulid id, string title)
+    public async Task<Result> Update(TagUpdateRequest tagRequest)
     {
-        if (!await _tagRepository.TagExistById(id))
+        if (!await _tagRepository.TagExistById(tagRequest.Id))
             return Result.Failure("Тэга не существует");
 
-        var tag = await _tagRepository.GetTagById(id);
+        var tag = await _tagRepository.GetTagById(tagRequest.Id);
 
-        tag = Tag.Update(tag, title);
+        tag = Tag.Update(tag, tagRequest.Title);
 
         var isUpdated = await _tagRepository.UpdateTag(tag);
 

@@ -4,7 +4,6 @@ using ForumPOF.Extensions;
 using ForumPOF.ModelBinders;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Persistance.Data;
 using Persistance.Repository;
 using Persistance.Repository.Interfaces;
@@ -23,14 +22,11 @@ public class Program
 
         //builder.Services.AddControllers();
 
-        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
         builder.Services.AddControllers(options =>
         {
             options.ModelBinderProviders.Insert(0, new UlidEntityBinderProvider());
-        })
-            .AddJsonOptions(x =>
-                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+        }).AddJsonOptions(x =>
+            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();

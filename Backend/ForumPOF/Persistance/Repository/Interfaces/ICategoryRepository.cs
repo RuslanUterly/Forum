@@ -6,7 +6,7 @@ public interface ICategoryRepository
 {
     Task<bool> CategoryExistByName(string categoryName);
     Task<bool> CategoryExistById(Ulid id);
-    Task<ICollection<Category>> GetCategories();
+    Task<IEnumerable<Category>> GetCategories();
     Task<Category> GetCategoryByName(string categoryName);
     Task<Category> GetCategoryById(Ulid id);
     

@@ -22,7 +22,7 @@ public class TopicRepository(ForumContext context) : ITopicRepository
             .AnyAsync(t => t.Id == id);
     }
 
-    public async Task<ICollection<Topic>> GetTopics()
+    public async Task<IEnumerable<Topic>> GetTopics()
     {
         return await _context.Topics
             .Include(t => t.User)
@@ -35,7 +35,7 @@ public class TopicRepository(ForumContext context) : ITopicRepository
             .ToArrayAsync();
     }
 
-    public async Task<ICollection<Topic>> GetTopicsByTitle(string title)
+    public async Task<IEnumerable<Topic>> GetTopicsByTitle(string title)
     {
         return await _context.Topics
             .AsNoTracking()
@@ -43,7 +43,7 @@ public class TopicRepository(ForumContext context) : ITopicRepository
             .ToArrayAsync();
     }
 
-    public async Task<ICollection<Topic>> GetTopicsByUser(Ulid userId)
+    public async Task<IEnumerable<Topic>> GetTopicsByUser(Ulid userId)
     {
         return await _context.Topics
             .AsNoTracking()
@@ -86,35 +86,7 @@ public class TopicRepository(ForumContext context) : ITopicRepository
             .Select(tt => tt.Tag)
             .ToArrayAsync();
 
-        //IEnumerable<Tag> newTags;
-        //if (topicTags.Length > tags.Length)
-        //{
-        //    //удаление
-        //    newTags = topicTags.Except(tags);
-        //    _context.TopicTags.Remove(await _context.TopicTags.FirstOrDefaultAsync(tt => tt.Tag == newTags));
-        //}
-        //else 
-        //{
-        //    //добавление
-        //    newTags = tags.Except(topicTags);
-        //    var newTopicTags = newTags.Select(tag =>
-        //        TopicTag.Create(Ulid.NewUlid(), topic.Id, tag.Id)
-        //     );
-
-        //    await _context.AddRangeAsync(topicTags);
-        //}
-
-        //var currentTagIds = topicTags
-        //    .Select(t => t.Id)
-        //    .ToHashSet();
-
-        //var newTagIds = tags
-        //    .Select(t => t.Id)
-        //    .ToHashSet();
-
         // Теги для удаления
-
-
         var tagsToRemove = topicTags
             .Where(t => !tags.Contains(t))
             .ToList();

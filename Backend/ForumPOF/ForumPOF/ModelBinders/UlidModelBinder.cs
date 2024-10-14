@@ -8,8 +8,8 @@ public class UlidModelBinder : IModelBinder
     {
         // Логика биндинга модели
         var value = bindingContext.ValueProvider.GetValue(bindingContext.ModelName).FirstValue;
-        // Преобразование value в нужный тип данных
 
+        // Преобразование value в нужный тип данных
         if (!Ulid.TryParse(value, out Ulid ulid))
             bindingContext.Result = ModelBindingResult.Failed();
         

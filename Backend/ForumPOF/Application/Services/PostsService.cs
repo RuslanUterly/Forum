@@ -1,5 +1,7 @@
-﻿using Application.Helper;
+﻿using Application.DTOs.Posts;
+using Application.Helper;
 using Application.Interfaces.Auth;
+using Mapster;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;
@@ -19,29 +21,32 @@ public class PostsService(
     private readonly ITopicRepository _topicRepository = topicRepository;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
-    public async Task<IEnumerable<Post>> RecieveAll()
+    public async Task<IEnumerable<PostDetailsRequest>> RecieveAll()
     {
-        return await _postRepository.GetPosts();
+        var posts = await _postRepository.GetPosts();
+        return posts.Adapt<IEnumerable<PostDetailsRequest>>();
     }
 
-    public async Task<IEnumerable<Post>> RecieveByTopic(Ulid topicId)
+    public async Task<IEnumerable<PostDetailsRequest>> RecieveByTopic(Ulid topicId)
     {
-        return await _postRepository.GetPostsByTopic(topicId);
+        var posts = await _postRepository.GetPostsByTopic(topicId);
+        return posts.Adapt<IEnumerable<PostDetailsRequest>>();
     }
 
-    public async Task<Post> RecieveById(Ulid id)
+    public async Task<PostDetailsRequest> RecieveById(Ulid id)
     {
-        return await _postRepository.GetPostById(id);
+        var post = await _postRepository.GetPostById(id);
+        return post.Adapt<PostDetailsRequest>();
     }
 
-    public async Task<Result> Create(string jwt, Ulid topicId, string content)
+    public async Task<Result> Create(string jwt, PostCreateRequest postRequest)
     {
         Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
 
-        if (!await _topicRepository.TopicExistById(topicId))
+        if (!await _topicRepository.TopicExistById(postRequest.TopicId))
             return Result.Failure("Тема для поста не существует");
 
-        var post = Post.Create(Ulid.NewUlid(), topicId, userId, content, DateTime.Now);
+        var post = Post.Create(Ulid.NewUlid(), postRequest.TopicId, userId, postRequest.Content, DateTime.Now);
         
         var isCreated = await _postRepository.CreatePost(post);
 
@@ -50,14 +55,14 @@ public class PostsService(
             Result.Failure("Произошла ошибка");
     } 
 
-    public async Task<Result> Update(Ulid id, string content)
+    public async Task<Result> Update(PostUpdateRequest postRequest)
     {
-        if (!await _postRepository.PostExistById(id))
+        if (!await _postRepository.PostExistById(postRequest.PostId))
             return Result.Failure("Тема для поста не существует");
         
-        var post = await _postRepository.GetPostById(id);
+        var post = await _postRepository.GetPostById(postRequest.PostId);
 
-        post = Post.Update(post, content, DateTime.Now);
+        post = Post.Update(post, postRequest.Content, DateTime.Now);
 
         var isUpdated = await _postRepository.UpdatePost(post);
 

@@ -1,19 +1,12 @@
 ﻿using Persistance.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistance.Repository.Interfaces;
-
-
 
 public interface IUserRepository
 {
     Task<bool> UserExistByEmail(string email);
     Task<bool> UserExistByUsername(string username);
-    Task<ICollection<User>> GetUsers();
+    Task<IEnumerable<User>> GetUsers();
     Task<User> GetUserById(Ulid id);
     Task<User> GetUserByEmail(string email);
 

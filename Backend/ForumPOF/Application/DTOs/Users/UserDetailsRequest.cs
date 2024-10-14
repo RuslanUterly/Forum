@@ -1,6 +1,6 @@
 ﻿namespace Application.DTOs.Users;
 
-public class DataUserRequest
+public class UserDetailsRequest
 {
     public Ulid Id { get; set; }
     public string UserName { get; set; }

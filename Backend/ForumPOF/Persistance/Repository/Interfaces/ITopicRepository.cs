@@ -1,9 +1,4 @@
 ﻿using Persistance.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistance.Repository.Interfaces;
 
@@ -11,9 +6,9 @@ public interface ITopicRepository
 {
     Task<bool> TopicExistById(Ulid id);
 
-    Task<ICollection<Topic>> GetTopics();
-    Task<ICollection<Topic>> GetTopicsByTitle(string title);
-    Task<ICollection<Topic>> GetTopicsByUser(Ulid userId);
+    Task<IEnumerable<Topic>> GetTopics();
+    Task<IEnumerable<Topic>> GetTopicsByTitle(string title);
+    Task<IEnumerable<Topic>> GetTopicsByUser(Ulid userId);
     Task<Topic> GetTopicsById(Ulid id);
 
     Task<bool> CreateTopic(Tag[] tags, Topic topic);

@@ -39,7 +39,7 @@ public class UserRepository(ForumContext context) : IUserRepository
             .FirstOrDefaultAsync(u => u.Email == email);
     }
 
-    public async Task<ICollection<User>> GetUsers()
+    public async Task<IEnumerable<User>> GetUsers()
     {
         return await _context.Users
             .AsNoTracking()

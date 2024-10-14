@@ -1,7 +1,11 @@
-﻿using Application.Helper;
+﻿using Application.DTOs.Topics;
+using Application.Helper;
 using Application.Interfaces.Auth;
+using Application.Mappings;
 using Azure;
+using Mapster;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.VisualBasic;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
 using System;
@@ -24,27 +28,30 @@ public class TopicsService(
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
 
-    public async Task<IEnumerable<Topic>> RecieveAll()
+    public async Task<IEnumerable<TopicDetailsRequest>> RecieveAll()
     {
-        return await _topicRepository.GetTopics();
+        var topics = await _topicRepository.GetTopics();
+        return topics.ToDetails();
     }
 
-    public async Task<IEnumerable<Topic>> RecieveByUser(string jwt)
+    public async Task<IEnumerable<TopicDetailsRequest>> RecieveByUser(string jwt)
     {
         Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
+        var topics = await _topicRepository.GetTopicsByUser(userId);
 
-        return await _topicRepository.GetTopicsByUser(userId);
+        return topics.Adapt<IEnumerable<TopicDetailsRequest>>();
     }
 
-    public async Task<IEnumerable<Topic>> RecieveByName(string name)
+    public async Task<IEnumerable<TopicDetailsRequest>> RecieveByName(string name)
     {
-        return await _topicRepository.GetTopicsByTitle(name);
+        var topics = await _topicRepository.GetTopicsByTitle(name);
+        return topics.Adapt<IEnumerable<TopicDetailsRequest>>();
     }
  
-    public async Task<Result> Create(string jwt, string title, string content, string categoryName, params string[] tagTitles)
+    public async Task<Result> Create(string jwt, TopicCreateRequest topicRequest, params string[] tagTitles)
     {
         Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
-        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
+        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, topicRequest.CategoryName);
 
         if (categoryId == default)
             return Result.Failure("Категории не существует"); 
@@ -56,7 +63,7 @@ public class TopicsService(
             if (tag is null)
                 return Result.Failure("Добавляемый тэг не существует");
 
-        var topic = Topic.Create(Ulid.NewUlid(), title, content, userId, categoryId, DateTime.Now);
+        var topic = Topic.Create(Ulid.NewUlid(), topicRequest.Title, topicRequest.Content, userId, categoryId, DateTime.Now);
 
         var isCreated = await _topicRepository.CreateTopic(tags, topic);
 
@@ -65,12 +72,12 @@ public class TopicsService(
             Result.Failure("Произошла ошибка");
     }
 
-    public async Task<Result> Update(Ulid topicId, string title, string content, string categoryName, params string[] tagTitles)
+    public async Task<Result> Update(TopicUpdateRequest topicRequest, params string[] tagTitles)
     {
-        if (!await _topicRepository.TopicExistById(topicId))
+        if (!await _topicRepository.TopicExistById(topicRequest.TopicId))
             return Result.Failure("Темы не существует");
 
-        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
+        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, topicRequest.CategoryName);
 
         if (categoryId == default)
             return Result.Failure("Категории не существует");
@@ -82,9 +89,9 @@ public class TopicsService(
             if (tag is null)
                 return Result.Failure("Добавляемый тэг не существует");
 
-        var topic = await _topicRepository.GetTopicsById(topicId);
+        var topic = await _topicRepository.GetTopicsById(topicRequest.TopicId);
 
-        topic = Topic.Update(topic, title, content, categoryId, DateTime.Now);
+        topic = Topic.Update(topic, topicRequest.Title, topicRequest.Content, categoryId, DateTime.Now);
 
         var isUpdated = await _topicRepository.UpdateTopic(tags, topic);
 

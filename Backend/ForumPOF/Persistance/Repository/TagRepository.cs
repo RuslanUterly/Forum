@@ -42,14 +42,14 @@ public class TagRepository(ForumContext context) : ITagRepository
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
-    public async Task<ICollection<Tag>> GetTags()
+    public async Task<IEnumerable<Tag>> GetTags()
     {
         return await _context.Tags
             .AsNoTracking()
             .ToArrayAsync();
     }
 
-    public async Task<ICollection<Topic>> GetTopicsByTag(string title)
+    public async Task<IEnumerable<Topic>> GetTopicsByTag(string title)
     {
         return await _context.TopicTags
             .Where(t => t.Tag.Title == title)
