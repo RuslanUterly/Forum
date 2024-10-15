@@ -31,19 +31,12 @@ public class UserController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var user = await _usersService.RecieveUser(jwt);
+        var user = await _usersService.RecieveUser(jwt);
 
-            return Ok(user);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(user);
     }
 
 
@@ -59,22 +52,15 @@ public class UserController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _usersService.Update(jwt, userRequest);
+        var result = await _usersService.Update(jwt, userRequest);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpDelete]
@@ -86,21 +72,14 @@ public class UserController(UsersService usersService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _usersService.Delete(jwt);
+        var result = await _usersService.Delete(jwt);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
-            
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(result);
     }
 }

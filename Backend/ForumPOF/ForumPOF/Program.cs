@@ -1,6 +1,7 @@
 using Application.Interfaces.Auth;
 using Application.Services;
 using ForumPOF.Extensions;
+using ForumPOF.Middlewares;
 using ForumPOF.ModelBinders;
 using Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +72,8 @@ public class Program
             .AllowAnyMethod()
             .AllowCredentials()
         );
+
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
 
         app.UseHttpsRedirection();
         app.UseAuthentication();

@@ -60,22 +60,15 @@ public class PostController(PostsService postsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _postsService.Create(jwt, postRequest);
+        var result = await _postsService.Create(jwt, postRequest);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpPut]
@@ -90,22 +83,15 @@ public class PostController(PostsService postsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _postsService.Update(postRequest);
+        var result = await _postsService.Update(postRequest);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpDelete("{postId}")]
@@ -117,21 +103,14 @@ public class PostController(PostsService postsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _postsService.Delete(postId);
+        var result = await _postsService.Delete(postId);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 }

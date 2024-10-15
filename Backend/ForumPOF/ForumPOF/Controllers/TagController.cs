@@ -45,22 +45,15 @@ public class TagController(TagsService tagsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrWhiteSpace(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrWhiteSpace(jwt))
+            return Unauthorized();
 
-            var result = await _tagsService.Create(tagRequest);
+        var result = await _tagsService.Create(tagRequest);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpPut]
@@ -75,22 +68,15 @@ public class TagController(TagsService tagsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _tagsService.Update(tagRequest);
+        var result = await _tagsService.Update(tagRequest);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpDelete("{tagTitle}")]
@@ -102,21 +88,14 @@ public class TagController(TagsService tagsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _tagsService.Delete(tagTitle);
+        var result = await _tagsService.Delete(tagTitle);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 }

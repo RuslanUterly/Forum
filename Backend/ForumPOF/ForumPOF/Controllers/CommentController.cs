@@ -60,22 +60,15 @@ public class CommentController(CommentsService commentsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _commentsService.Create(jwt, commentRequest);
+        var result = await _commentsService.Create(jwt, commentRequest);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
-            
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
+
+        return Ok(result.Message);
     }
 
     [HttpPut]
@@ -90,22 +83,15 @@ public class CommentController(CommentsService commentsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _commentsService.Update(commentRequest);
+        var result = await _commentsService.Update(commentRequest);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpDelete("{commentId}")]
@@ -117,21 +103,14 @@ public class CommentController(CommentsService commentsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _commentsService.Delete(commentId);
+        var result = await _commentsService.Delete(commentId);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 }

@@ -19,3 +19,5 @@ public class Result
     public static Result Success(string message) => new Result(true, message);
     public static Result Failure(string message) => new Result(false, message);
 }
+
+public record Error(int StatusCode, string Message);

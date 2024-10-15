@@ -29,19 +29,12 @@ public class TopicController(TopicsService topicsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var topics = await _topicsService.RecieveByUser(jwt);
+        var topics = await _topicsService.RecieveByUser(jwt);
 
-            return Ok(topics);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(topics);
     }
 
     [HttpGet("{topicTitle}")]
@@ -51,19 +44,12 @@ public class TopicController(TopicsService topicsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var topics = await _topicsService.RecieveByName(topicTitle);
+        var topics = await _topicsService.RecieveByName(topicTitle);
 
-            return Ok(topics);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(topics);
     }
 
     [HttpPost]
@@ -77,22 +63,15 @@ public class TopicController(TopicsService topicsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _topicsService.Create(jwt, createTopicRequest, tagTitles);
+        var result = await _topicsService.Create(jwt, createTopicRequest, tagTitles);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpPut]
@@ -107,22 +86,15 @@ public class TopicController(TopicsService topicsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _topicsService.Update(updateTopicRequest, tagTitles);
+        var result = await _topicsService.Update(updateTopicRequest, tagTitles);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 
     [HttpDelete("{topicId}")]
@@ -134,21 +106,14 @@ public class TopicController(TopicsService topicsService) : Controller
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        try
-        {
-            if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-                return Unauthorized();
+        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
+            return Unauthorized();
 
-            var result = await _topicsService.Delete(topicId);
+        var result = await _topicsService.Delete(topicId);
 
-            if (!result.IsSuccess)
-                return BadRequest(result.Message);
+        if (!result.IsSuccess)
+            return BadRequest(result.Message);
 
-            return Ok(result.Message);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        return Ok(result.Message);
     }
 }

@@ -59,6 +59,9 @@ public class UsersService(
 
     public async Task<Result> Login(LoginUserRequest userRequest)
     {
+        if (!await _userRepository.UserExistByEmail(userRequest.Email))
+            return Result.Failure("Пользователь не найден");
+
         var user = await _userRepository.GetUserByEmail(userRequest.Email);
 
         var result = _passwordHasher.Verify(userRequest.Password, user.Password);
