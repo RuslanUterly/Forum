@@ -25,7 +25,6 @@ public static class Reciever
     public async static Task<Ulid> CategoryUlid(ICategoryRepository repository, string categoryName)
     {
         var category = await repository.GetCategoryByName(categoryName);
-
         if (category is null)
             return default;
         

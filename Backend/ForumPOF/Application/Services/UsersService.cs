@@ -83,7 +83,7 @@ public class UsersService(
 
         var user = await _userRepository.GetUserByEmail(userRequest.Email);
 
-        user = User.Update(user, passwordHash, userRequest.Email, DateTime.Now);
+        user = User.Reestablish(user, passwordHash, userRequest.Email, DateTime.Now);
 
         var isUpdated = await _userRepository.UpdateUser(user);
 
@@ -102,7 +102,7 @@ public class UsersService(
 
         var user = await _userRepository.GetUserById(id);
 
-        user = User.Update(user, passwordHash, userRequest.Email, DateTime.Now);
+        user = User.Update(user, userRequest.UserName, passwordHash, userRequest.Email, DateTime.Now);
 
         var isUpdated = await _userRepository!.UpdateUser(user);
 

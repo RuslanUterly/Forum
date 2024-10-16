@@ -38,12 +38,27 @@ public class User
         };
     }
 
-    public static User Update(
+    public static User Reestablish(
         User user, 
         string password,
         string email, 
         DateTime updated)
     {
+        user.Email = email;
+        user.Password = password;
+        user.Updated = updated;
+
+        return user;
+    }
+
+    public static User Update(
+       User user,
+       string userName,
+       string password,
+       string email,
+       DateTime updated)
+    {
+        user.UserName = userName;
         user.Email = email;
         user.Password = password;
         user.Updated = updated;

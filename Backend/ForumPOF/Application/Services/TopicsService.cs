@@ -31,7 +31,7 @@ public class TopicsService(
     public async Task<IEnumerable<TopicDetailsRequest>> RecieveAll()
     {
         var topics = await _topicRepository.GetTopics();
-        return topics.Adapt<IEnumerable<TopicDetailsRequest>>(MappingConfig.Register(new TypeAdapterConfig()));
+        return topics.Adapt<IEnumerable<TopicDetailsRequest>>();
     }
 
     public async Task<IEnumerable<TopicDetailsRequest>> RecieveByUser(string jwt)

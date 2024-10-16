@@ -1,5 +1,6 @@
 using Application.DTOs.Users;
 using Application.Interfaces.Auth;
+using Application.Mappings;
 using Application.Services;
 using Application.Validation;
 using FluentValidation;
@@ -8,6 +9,8 @@ using ForumPOF.Extensions;
 using ForumPOF.Middlewares;
 using ForumPOF.ModelBinders;
 using Infrastructure;
+using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Repository;
@@ -49,9 +52,17 @@ public class Program
         builder.Services.AddScoped<PostsService>();
         builder.Services.AddScoped<CommentsService>();
 
+        builder.Services.AddSingleton(() =>  //Добавляем конфиг
+        {
+            var config = new TypeAdapterConfig();
+
+            new RegisterMapper().Register(config);
+
+            return config;
+        });
+
         builder.Services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserValidator>();
         builder.Services.AddFluentValidationAutoValidation();
-        //builder.Services.AddScoped<IUsersCrudService, UsersService>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddApiAuthentication(builder.Configuration);
