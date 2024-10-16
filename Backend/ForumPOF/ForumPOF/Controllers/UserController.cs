@@ -77,6 +77,8 @@ public class UserController(UsersService usersService) : Controller
 
         var result = await _usersService.Delete(jwt);
 
+        Response.Cookies.Delete("tasty-cookies");
+
         if (!result.IsSuccess)
             return BadRequest(result.Message);
 
