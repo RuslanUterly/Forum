@@ -1,5 +1,9 @@
+using Application.DTOs.Users;
 using Application.Interfaces.Auth;
 using Application.Services;
+using Application.Validation;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using ForumPOF.Extensions;
 using ForumPOF.Middlewares;
 using ForumPOF.ModelBinders;
@@ -37,13 +41,16 @@ public class Program
         builder.Services.AddScoped<ICommentRepository, CommentRepository>();
         builder.Services.AddScoped<IJwtProvider, JwtProvider>();
         builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-        //builder.Services.AddScoped<IUsersService, UsersService>();
+        
         builder.Services.AddScoped<UsersService>();
         builder.Services.AddScoped<CategoriesService>();
         builder.Services.AddScoped<TopicsService>();
         builder.Services.AddScoped<TagsService>();
         builder.Services.AddScoped<PostsService>();
         builder.Services.AddScoped<CommentsService>();
+
+        builder.Services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserValidator>();
+        builder.Services.AddFluentValidationAutoValidation();
         //builder.Services.AddScoped<IUsersCrudService, UsersService>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

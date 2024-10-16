@@ -16,7 +16,8 @@ public static class MappingConfig
     {
         config
             .NewConfig<Topic, TopicDetailsRequest>()
-            .Map(dest => dest.Tags, src => src.ThreadTags.Select(tt => tt.Tag));
+            .Map(dest => dest.Tags, src => src.ThreadTags.Select(tt => tt.Tag))
+            .RequireDestinationMemberSource(true);
 
         return config;
     }

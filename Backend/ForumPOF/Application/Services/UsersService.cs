@@ -44,7 +44,7 @@ public class UsersService(
         if (await _userRepository.UserExistByEmail(userRequest.Email))
             return Result.Failure("Пользователь уже зарегистрирован");
 
-        if (await _userRepository.UserExistByUsername(userRequest.Email))
+        if (await _userRepository.UserExistByUsername(userRequest.UserName))
             return Result.Failure("Имя пользователя занято");
 
         var hashedPassword = _passwordHasher.Generate(userRequest.Password);
