@@ -1,3 +1,8 @@
+using Application.DTOs.Categories;
+using Application.DTOs.Comments;
+using Application.DTOs.Posts;
+using Application.DTOs.Tags;
+using Application.DTOs.Topics;
 using Application.DTOs.Users;
 using Application.Interfaces.Auth;
 using Application.Mappings;
@@ -61,7 +66,21 @@ public class Program
             return config;
         });
 
+        builder.Services.AddScoped<IValidator<LoginUserRequest>, LoginUserValidator>();
         builder.Services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserValidator>();
+        builder.Services.AddScoped<IValidator<ReestablishUserRequest>, ReestablishUserValidator>();
+        builder.Services.AddScoped<IValidator<UserUpdateRequest>, UserUpdateValidator>();
+        builder.Services.AddScoped<IValidator<CategoryCreateRequest>, CategoryCreateValidator>();
+        builder.Services.AddScoped<IValidator<CategoryUpdateRequest>, CategoryUpdateValidator>();
+        builder.Services.AddScoped<IValidator<CommentCreateRequest>, CommentCreateValidator>();
+        builder.Services.AddScoped<IValidator<CommentUpdateRequest>, CommentUpdateValidator>();
+        builder.Services.AddScoped<IValidator<TagCreateRequest>, TagCreateValidator>();
+        builder.Services.AddScoped<IValidator<TagUpdateRequest>, TagUpdateValidator>();
+        builder.Services.AddScoped<IValidator<PostCreateRequest>, PostCreateValidator>();
+        builder.Services.AddScoped<IValidator<PostUpdateRequest>, PostUpdateValidator>();
+        builder.Services.AddScoped<IValidator<TopicCreateRequest>, TopicCreateValidator>();
+        builder.Services.AddScoped<IValidator<TopicUpdateRequest>, TopicUpdateValidator>();
+
         builder.Services.AddFluentValidationAutoValidation();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
