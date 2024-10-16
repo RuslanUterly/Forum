@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class PostController(PostsService postsService) : Controller
 {

@@ -5,7 +5,7 @@ using Persistance.Models;
 
 namespace ForumPOF.Controllers;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class CategoryController(CategoriesService categoryService) : Controller
 {
