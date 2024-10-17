@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Repository;
 using Persistance.Repository.Interfaces;
+using System.Reflection;
 using System.Text.Json.Serialization;
 
 namespace ForumPOF;
@@ -33,29 +34,49 @@ public class Program
         // Add services to the container.
         builder.Services.AddCors();
 
-        //builder.Services.AddControllers();
+        builder.Services
+            .AddControllers(options =>
+            {
+                options.ModelBinderProviders.Insert(0, new UlidEntityBinderProvider());
+            })
+            .AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
-        builder.Services.AddControllers(options =>
-        {
-            options.ModelBinderProviders.Insert(0, new UlidEntityBinderProvider());
-        }).AddJsonOptions(x =>
-            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+        var assemblyApplication = Assembly.Load("Application");
+        var assemblyPersistance = Assembly.Load("Persistance");
+        var assemblyInfrastructure = Assembly.Load("Infrastructure");
 
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-        builder.Services.AddScoped<ITopicRepository, TopicRepository>();
-        builder.Services.AddScoped<ITagRepository, TagRepository>();
-        builder.Services.AddScoped<IPostRepository, PostRepository>();
-        builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-        builder.Services.AddScoped<IJwtProvider, JwtProvider>();
-        builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-        
-        builder.Services.AddScoped<UsersService>();
-        builder.Services.AddScoped<CategoriesService>();
-        builder.Services.AddScoped<TopicsService>();
-        builder.Services.AddScoped<TagsService>();
-        builder.Services.AddScoped<PostsService>();
-        builder.Services.AddScoped<CommentsService>();
+        builder.Services.AddValidatorsFromAssembly(assemblyApplication);
+        builder.Services.AddFluentValidationAutoValidation();
+
+        builder.Services.Scan(scan => scan
+            .FromAssemblies(assemblyApplication, assemblyPersistance, assemblyInfrastructure)
+            .AddClasses(classes => classes.InNamespaces("Persistance.Repository"))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+            .AddClasses(classes => classes.InNamespaces("Application.Services"))
+                .AsSelf()
+                .WithScopedLifetime()
+            .AddClasses(classes => classes.InNamespaces("Infrastructure"))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
+            );
+
+        //builder.Services.AddScoped<IUserRepository, UserRepository>();
+        //builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+        //builder.Services.AddScoped<ITopicRepository, TopicRepository>();
+        //builder.Services.AddScoped<ITagRepository, TagRepository>();
+        //builder.Services.AddScoped<IPostRepository, PostRepository>();
+        //builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+        //builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+        //builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        //builder.Services.AddScoped<UsersService>();
+        //builder.Services.AddScoped<CategoriesService>();
+        //builder.Services.AddScoped<TopicsService>();
+        //builder.Services.AddScoped<TagsService>();
+        //builder.Services.AddScoped<PostsService>();
+        //builder.Services.AddScoped<CommentsService>();
 
         builder.Services.AddSingleton(() =>  //Добавляем конфиг
         {
@@ -65,23 +86,6 @@ public class Program
 
             return config;
         });
-
-        builder.Services.AddScoped<IValidator<LoginUserRequest>, LoginUserValidator>();
-        builder.Services.AddScoped<IValidator<RegisterUserRequest>, RegisterUserValidator>();
-        builder.Services.AddScoped<IValidator<ReestablishUserRequest>, ReestablishUserValidator>();
-        builder.Services.AddScoped<IValidator<UserUpdateRequest>, UserUpdateValidator>();
-        builder.Services.AddScoped<IValidator<CategoryCreateRequest>, CategoryCreateValidator>();
-        builder.Services.AddScoped<IValidator<CategoryUpdateRequest>, CategoryUpdateValidator>();
-        builder.Services.AddScoped<IValidator<CommentCreateRequest>, CommentCreateValidator>();
-        builder.Services.AddScoped<IValidator<CommentUpdateRequest>, CommentUpdateValidator>();
-        builder.Services.AddScoped<IValidator<TagCreateRequest>, TagCreateValidator>();
-        builder.Services.AddScoped<IValidator<TagUpdateRequest>, TagUpdateValidator>();
-        builder.Services.AddScoped<IValidator<PostCreateRequest>, PostCreateValidator>();
-        builder.Services.AddScoped<IValidator<PostUpdateRequest>, PostUpdateValidator>();
-        builder.Services.AddScoped<IValidator<TopicCreateRequest>, TopicCreateValidator>();
-        builder.Services.AddScoped<IValidator<TopicUpdateRequest>, TopicUpdateValidator>();
-
-        builder.Services.AddFluentValidationAutoValidation();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddApiAuthentication(builder.Configuration);
