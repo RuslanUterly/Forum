@@ -2,15 +2,9 @@
 using Application.Helper;
 using Application.Interfaces.Auth;
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services;
 
@@ -23,13 +17,13 @@ public class UsersService(
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IJwtProvider _jwtProvider = jwtProvider;
 
-    public async Task<IEnumerable<UserDetailsRequest>> RecieveAll()
+    public async Task<IEnumerable<UserDetailsRequest>> ReceiveAll()
     {
         var users = await _userRepository.GetUsers();
         return users.Adapt<IEnumerable<UserDetailsRequest>>();
     }
 
-    public async Task<UserDetailsRequest> RecieveUser(string jwt)
+    public async Task<UserDetailsRequest> ReceiveUser(string jwt)
     {
         Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
         if (id == default)
@@ -39,13 +33,13 @@ public class UsersService(
         return user.Adapt<UserDetailsRequest>();
     }
 
-    public async Task<Result> Register(RegisterUserRequest userRequest)
+    public async Task<Result<Ulid>> Register(RegisterUserRequest userRequest)
     {
         if (await _userRepository.UserExistByEmail(userRequest.Email))
-            return Result.Failure("Пользователь уже зарегистрирован");
+            return Result<Ulid>.BadRequest("Пользователь уже зарегистрирован");
 
         if (await _userRepository.UserExistByUsername(userRequest.UserName))
-            return Result.Failure("Имя пользователя занято");
+            return Result<Ulid>.BadRequest("Имя пользователя занято");
 
         var hashedPassword = _passwordHasher.Generate(userRequest.Password);
 
@@ -53,31 +47,31 @@ public class UsersService(
 
         var isCreated = await _userRepository.CreateUser(user);
         return isCreated ?
-            Result.Success("Успех!") :
-            Result.Failure("Ошибка");
+            Result<Ulid>.Created(user.Id) :
+            Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Login(LoginUserRequest userRequest)
+    public async Task<Result<string>> Login(LoginUserRequest userRequest)
     {
         if (!await _userRepository.UserExistByEmail(userRequest.Email))
-            return Result.Failure("Пользователь не найден");
+            return Result<string>.NotFound("Пользователь не найден");
 
         var user = await _userRepository.GetUserByEmail(userRequest.Email);
 
         var result = _passwordHasher.Verify(userRequest.Password, user.Password);
 
         if (result is false)
-            return Result.Failure("Ошибка авторизации! Проверьте логин или пароль");
+            return Result<string>.BadRequest("Ошибка авторизации! Проверьте логин или пароль");
 
         var token = _jwtProvider.GenerateToken(user);
 
-        return Result.Success(token);
+        return Result<string>.Ok(token);
     }
 
     public async Task<Result> Reestablish(ReestablishUserRequest userRequest)
     {
         if (!await _userRepository.UserExistByEmail(userRequest.Email))
-            return Result.Failure("Пользователь не найден");
+            return Result.NotFound("Пользователь не найден");
 
         var passwordHash = _passwordHasher.Generate(userRequest.Password);
 
@@ -88,15 +82,15 @@ public class UsersService(
         var isUpdated = await _userRepository.UpdateUser(user);
 
         return isUpdated ?
-            Result.Success("Пароль успешно изменен") :
-            Result.Failure("Ошибка изменения пароля");
+            Result.Ok() :
+            Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
     public async Task<Result> Update(string jwt, UserUpdateRequest userRequest)
     {
         Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
         if (id == default)
-            return Result.Failure("Пользователя не существует");
+            return Result.NotFound("Пользователя не существует");
 
         var passwordHash = _passwordHasher.Generate(userRequest.Password);
 
@@ -107,22 +101,22 @@ public class UsersService(
         var isUpdated = await _userRepository!.UpdateUser(user);
 
         return isUpdated ?
-            Result.Success("Пользователь изменен") :
-            Result.Failure("Произошла ошибка");    
+            Result.NoContent() :
+            Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
     public async Task<Result> Delete(string jwt)
     {
         Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
         if (id == default)
-            return Result.Failure("Пользователя не существует");
+            return Result.NotFound("Пользователя не существует");
 
         var user = await _userRepository.GetUserById(id);
 
         var isRemoved = await _userRepository.DeleteUser(user);
 
         return isRemoved ? 
-            Result.Success("Пользователь удален") :
-            Result.Failure("Произошла ошибка");
+            Result.NoContent() :
+            Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 }

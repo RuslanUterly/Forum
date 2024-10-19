@@ -78,16 +78,9 @@ public class Program
         //builder.Services.AddScoped<PostsService>();
         //builder.Services.AddScoped<CommentsService>();
 
-        builder.Services.AddSingleton(() =>  //Добавляем конфиг
-        {
-            var config = new TypeAdapterConfig();
+        var mapsterConfig = new MapsterConfig();
+        builder.Services.AddSingleton<MapsterConfig>();
 
-            new RegisterMapper().Register(config);
-
-            return config;
-        });
-
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddApiAuthentication(builder.Configuration);
 
         builder.Services.AddEndpointsApiExplorer();

@@ -4,3 +4,12 @@ GET {{ForumPOF_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+POST https://localhost:7111/category
+Content-Type: application/json
+
+{
+  "name": null
+}
+
+###

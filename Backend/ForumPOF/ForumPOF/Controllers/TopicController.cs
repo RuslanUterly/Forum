@@ -10,68 +10,62 @@ public class TopicController(TopicsService topicsService) : Controller
 {
     private readonly TopicsService _topicsService = topicsService;
 
-    [HttpGet("recieveAllTopics")]
+    [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopics()
     {
-        var topics = await _topicsService.RecieveAll();
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var topics = await _topicsService.ReceiveAll();
 
         return Ok(topics);
     }
 
-    [HttpGet("recieveByUser")]
+    [HttpGet("byUser")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopicsByUser()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
-        var topics = await _topicsService.RecieveByUser(jwt);
+        var topics = await _topicsService.ReceiveByUser(jwt);
 
         return Ok(topics);
     }
 
-    [HttpGet("{topicTitle}")]
+    [HttpGet("byTitle/{topicTitle}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopicsByName(string topicTitle)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
-        var topics = await _topicsService.RecieveByName(topicTitle);
+        var topics = await _topicsService.ReceiveByName(topicTitle);
 
         return Ok(topics);
     }
 
+    [HttpGet("{topicId}")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
+    public async Task<IActionResult> GetTopicById(Ulid topicId)
+    {
+        var topic = await _topicsService.ReceiveById(topicId);
+
+        return Ok(topic);
+    }
+
     [HttpPost]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateTopic([FromQuery] string[] tagTitles, [FromBody] TopicCreateRequest createTopicRequest)
     {
-        if (createTopicRequest is null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _topicsService.Create(jwt, createTopicRequest, tagTitles);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return CreatedAtAction(nameof(GetTopicById), new { topicId = result.Data}, result.Data);
     }
 
     [HttpPut]
@@ -80,21 +74,15 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateTopic([FromQuery] string[] tagTitles, [FromBody] TopicUpdateRequest updateTopicRequest)
     {
-        if (updateTopicRequest is null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _topicsService.Update(updateTopicRequest, tagTitles);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return NoContent();
     }
 
     [HttpDelete("{topicId}")]
@@ -103,17 +91,14 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteTitle(Ulid topicId)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _topicsService.Delete(topicId);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return NoContent();
     }
 }

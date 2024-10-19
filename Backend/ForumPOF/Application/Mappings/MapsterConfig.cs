@@ -10,14 +10,13 @@ using System.Threading.Tasks;
 
 namespace Application.Mappings;
 
-public class RegisterMapper
+public class MapsterConfig
 {
-    public void Register(TypeAdapterConfig config)
+    public MapsterConfig()
     {
-        config
-            .NewConfig<Topic, TopicDetailsRequest>()
+        TypeAdapterConfig<Topic, TopicDetailsRequest>
+            .NewConfig()
             .Map(dest => dest.Tags, src => src.ThreadTags.Select(tt => tt.Tag))
             .RequireDestinationMemberSource(true);
-
     }
 }

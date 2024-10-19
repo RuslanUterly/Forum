@@ -6,69 +6,51 @@ namespace ForumPOF.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class CommentController(CommentsService commentsService) : Controller
+public class CommentController(CommentsService commentsService) : ControllerBase
 {
     private readonly CommentsService _commentsService = commentsService;
 
-    [HttpGet("recieveAll")]
+    [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommentDetailsRequest>))]
     public async Task<IActionResult> GetComments()
     {
-        var comments = await _commentsService.RecieveAll();
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var comments = await _commentsService.ReceiveAll();
 
         return Ok(comments);
     }
 
-    [HttpGet("recieveByPost/{postId}")]
+    [HttpGet("byPost/{postId}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<CommentDetailsRequest>))]
     public async Task<IActionResult> GetCommentsByPost(Ulid postId)
     {
-        var comments = await _commentsService.RecieveByPost(postId);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var comments = await _commentsService.ReceiveByPost(postId);
 
         return Ok(comments);
     }
 
-    [HttpGet("recieve/{commentId}")]
+    [HttpGet("comment/{commentId}")]
     [ProducesResponseType(200, Type = typeof(CommentDetailsRequest))]
     public async Task<IActionResult> GetCommentById(Ulid commentId)
     {
-        if (commentId == default)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var comment = await _commentsService.RecieveCommentById(commentId);
+        var comment = await _commentsService.ReceiveCommentById(commentId);
 
         return Ok(comment);
     }
 
     [HttpPost]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateComment([FromBody] CommentCreateRequest commentRequest)
     {
-        if (commentRequest is null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _commentsService.Create(jwt, commentRequest);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return CreatedAtAction(nameof(GetCommentById), new { commentId = result.Data }, result.Data);
     }
 
     [HttpPut]
@@ -77,21 +59,15 @@ public class CommentController(CommentsService commentsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateRequest commentRequest)
     {
-        if (commentRequest is null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _commentsService.Update(commentRequest);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return NoContent();
     }
 
     [HttpDelete("{commentId}")]
@@ -100,17 +76,14 @@ public class CommentController(CommentsService commentsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteComment(Ulid commentId)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _commentsService.Delete(commentId);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return NoContent();
     }
 }

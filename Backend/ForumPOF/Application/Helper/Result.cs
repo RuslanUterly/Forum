@@ -1,23 +1,50 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Http;
 
 namespace Application.Helper;
 
 public class Result
 {
-    public bool IsSuccess { get; set; }
-    public string Message { get; set; }
-    public Result(bool isSuccess, string message)
+    public string? Error { get; private set; }
+    public int StatusCode { get; private set; }
+    protected bool HasValue => Error == null;
+
+    protected Result(int statusCode, string? error = null)
     {
-        IsSuccess = isSuccess;
-        Message = message;
+        StatusCode = statusCode;
+        Error = error;
     }
 
-    public static Result Success(string message) => new Result(true, message);
-    public static Result Failure(string message) => new Result(false, message);
+    public static implicit operator bool(Result result)
+    {
+        return result.HasValue;
+    }
+
+    public static Result Ok() => new Result(StatusCodes.Status200OK);
+    public static Result NoContent() => new Result(StatusCodes.Status204NoContent);
+    public static Result NotFound(string error) => new Result(StatusCodes.Status404NotFound, error);
+    public static Result BadRequest(string error) => new Result(StatusCodes.Status400BadRequest, error);
+    public static Result Fail(int statusCode, string error) => new Result(statusCode, error);
+
 }
 
-public record Error(int StatusCode, string Message);
+public class Result<T> : Result
+{
+    public T? Data { get; private set; }
+
+    private Result(int statusCode, T? data = default(T)) : base(statusCode)
+    {
+        Data = data;
+    }
+
+    private Result(int statusCode, string error) : base(statusCode, error)
+    {
+    }
+
+    public static Result<T> Ok() => new Result<T>(StatusCodes.Status200OK);
+    public static Result<T> Ok(T data) => new Result<T>(StatusCodes.Status200OK, data);
+    public static Result<T> NoContent() => new Result<T>(StatusCodes.Status204NoContent);
+    public static Result<T> Created(T data) => new Result<T>(StatusCodes.Status201Created, data);
+    public static Result<T> BadRequest(string error) => new Result<T>(StatusCodes.Status400BadRequest, error);
+    public static Result<T> NotFound(string error) => new Result<T>(StatusCodes.Status404NotFound, error);
+    public static Result<T> Fail(int statusCode, string error) => new Result<T>(statusCode, error);
+}

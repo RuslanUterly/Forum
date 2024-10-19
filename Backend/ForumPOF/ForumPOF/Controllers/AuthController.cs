@@ -6,52 +6,43 @@ namespace ForumPOF.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class AuthController(UsersService usersService) : Controller
+public class AuthController(UsersService usersService) : ControllerBase
 {
     private readonly UsersService _usersService = usersService;
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var result = await _usersService.Register(request);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
-        
-        return Ok(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
+
+        return CreatedAtAction(nameof(Register), new { id = result.Data }, result.Data);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUserRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var token = await usersService.Login(request);
 
-        if (!token.IsSuccess)
-            return BadRequest(token.Message);
+        if (!token)
+            return StatusCode(token.StatusCode, token.Error);
 
-        Response.Cookies.Append("tasty-cookies", token.Message);
+        Response.Cookies.Append("tasty-cookies", token.Data);
 
-        return Ok(token.Message);
+        return Ok(token.Data);
     }
 
     [HttpPost("reestablish")]
     public async Task<IActionResult> Reestablish([FromBody] ReestablishUserRequest request)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         var isReestablished = await usersService.Reestablish(request);
 
-        if (!isReestablished.IsSuccess)
-            return BadRequest(isReestablished.Message);
+        if (!isReestablished)
+            return StatusCode(isReestablished.StatusCode, isReestablished.Error);
 
-        return Ok(isReestablished.Message);
+        return Ok();
     }
 
 
@@ -59,6 +50,6 @@ public class AuthController(UsersService usersService) : Controller
     public IActionResult Logout()
     {
         Response.Cookies.Delete("tasty-cookies");
-        return Ok("Successfull");
+        return Ok();
     }
 }

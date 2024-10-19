@@ -3,13 +3,9 @@ using Application.DTOs.Topics;
 using Application.Helper;
 using Application.Interfaces.Auth;
 using Mapster;
+using Microsoft.AspNetCore.Http;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services;
 
@@ -20,42 +16,44 @@ public class TagsService(
     private readonly ITagRepository _tagRepository = tagRepository;
     private readonly IJwtProvider _jwtProvider= jwtProvider;
 
-    public async Task<IEnumerable<TagDetailsRequest>> RecieveAll()
+    public async Task<IEnumerable<TagDetailsRequest>> ReceiveAll()
     {
         var tags = await _tagRepository.GetTags();
         return tags.Adapt<IEnumerable<TagDetailsRequest>>();
     }
 
-    public async Task<IEnumerable<TopicDetailsRequest>> RecieveByTopic(string tagTitle)
+    public async Task<IEnumerable<TopicDetailsRequest>> ReceiveByTopic(string tagTitle)
     {
         var topic = await _tagRepository.GetTopicsByTag(tagTitle);
         return topic.Adapt<IEnumerable<TopicDetailsRequest>>();
     }
 
-    public async Task<TagDetailsRequest> RecieveByTitle(string tagTitle)
+    public async Task<TagDetailsRequest> ReceiveByTitle(string tagTitle)
     {
         var tag = await _tagRepository.GetTagByTitle(tagTitle);
         return tag.Adapt<TagDetailsRequest>();
     }
 
-    public async Task<Result> Create(TagCreateRequest tagRequest)
+    public async Task<Result<Ulid>> Create(TagCreateRequest tagRequest)
     {
         if (await _tagRepository.TagExistByTitle(tagRequest.Title))
-            return Result.Failure("Тэг уже создан");
+            return Result<Ulid>.BadRequest("Тэг уже создан");
 
         var tag = Tag.Create(Ulid.NewUlid(), tagRequest.Title);
 
         var isCreated = await _tagRepository.CreateTag(tag);
 
         return isCreated ?
-            Result.Success("Тэг создан") :
-            Result.Failure("Произошла ошибка");
+            //Results.Created(string.Empty, tag.Id) :
+            //Results.StatusCode(StatusCodes.Status500InternalServerError);
+            Result<Ulid>.Created(tag.Id) :
+            Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
     public async Task<Result> Update(TagUpdateRequest tagRequest)
     {
         if (!await _tagRepository.TagExistById(tagRequest.Id))
-            return Result.Failure("Тэга не существует");
+            return Result.NotFound("Тэга не существует");
 
         var tag = await _tagRepository.GetTagById(tagRequest.Id);
 
@@ -64,21 +62,21 @@ public class TagsService(
         var isUpdated = await _tagRepository.UpdateTag(tag);
 
         return isUpdated ?
-            Result.Success("Тэг изменен") :
-            Result.Failure("Произошла ошибка");
+            Result.NoContent() :
+            Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
     public async Task<Result> Delete(string title)
     {
         if (!await _tagRepository.TagExistByTitle(title))
-            return Result.Failure("Тэга не существует");
+            return Result.NotFound("Тэга не существует");
 
         var tag = await _tagRepository.GetTagByTitle(title);
 
         var isDeleted = await _tagRepository.DeleteTag(tag);
 
         return isDeleted ?
-            Result.Success("Тэг удален") :
-            Result.Failure("Произошла ошибка");
+            Result.NoContent() :
+            Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 }

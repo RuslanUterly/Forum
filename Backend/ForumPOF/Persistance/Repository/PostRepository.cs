@@ -2,11 +2,6 @@
 using Persistance.Data;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistance.Repository;
 
@@ -51,9 +46,6 @@ public class PostRepository(ForumContext context) : IPostRepository
 
     public async Task<bool> DeletePost(Post post)
     {
-        var commentsOnPost = post.Comments;
-        _context.Comments.RemoveRange(commentsOnPost);
-
         _context.Remove(post);
         return await Save();
     }

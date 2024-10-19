@@ -1,7 +1,6 @@
 ﻿using Application.DTOs.Users;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
-using Persistance.Models;
 
 namespace ForumPOF.Controllers;
 
@@ -11,34 +10,27 @@ public class UserController(UsersService usersService) : Controller
 {
     private readonly UsersService _usersService = usersService;
 
-    [HttpGet("recieveAllUsers")]
-    [ProducesResponseType(200, Type = typeof(IEnumerable<User>))]
+    [HttpGet("all")]
+    [ProducesResponseType(200, Type = typeof(IEnumerable<UserDetailsRequest>))]
     public async Task<IActionResult> GetUsers()
     {
-        var users = await _usersService!.RecieveAll();
+        var users = await _usersService!.ReceiveAll();
         
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         return Ok(users);
     }
 
-    [HttpGet("recieveUser")]
-    [ProducesResponseType(200, Type = typeof(User))]
+    [HttpGet("user")]
+    [ProducesResponseType(200, Type = typeof(UserDetailsRequest))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetUser()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
-        var user = await _usersService.RecieveUser(jwt);
+        var user = await _usersService.ReceiveUser(jwt);
 
         return Ok(user);
     }
-
 
     [HttpPut]
     [ProducesResponseType(204)]
@@ -46,21 +38,15 @@ public class UserController(UsersService usersService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateUser([FromBody] UserUpdateRequest userRequest)
     {
-        if (userRequest == null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _usersService.Update(jwt, userRequest);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return NoContent();
     }
 
     [HttpDelete]
@@ -69,9 +55,6 @@ public class UserController(UsersService usersService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteUser()
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
@@ -79,9 +62,9 @@ public class UserController(UsersService usersService) : Controller
 
         Response.Cookies.Delete("tasty-cookies");
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result);
+        return NoContent();
     }
 }

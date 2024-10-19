@@ -6,54 +6,42 @@ namespace ForumPOF.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-public class TagController(TagsService tagsService) : Controller
+public class TagController(TagsService tagsService) : ControllerBase
 {
     private readonly TagsService _tagsService = tagsService;
 
-    [HttpGet("recieveAllTags")]
+    [HttpGet("all")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TagDetailsRequest>))]
     public async Task<IActionResult> GetTags()
     {
-        var tags = await _tagsService.RecieveAll();
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
+        var tags = await _tagsService.ReceiveAll();
 
         return Ok(tags);
     }
 
-    [HttpGet("{tagTitle}")]
+    [HttpGet("byTitle/{tagTitle}")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TagDetailsRequest>))]
     public async Task<IActionResult> GetTagsByTitle(string tagTitle)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        var tags = await _tagsService.RecieveByTitle(tagTitle);
+        var tags = await _tagsService.ReceiveByTitle(tagTitle);
 
         return Ok(tags);
     }
 
     [HttpPost]
-    [ProducesResponseType(204)]
+    [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateTag(TagCreateRequest tagRequest)
     {
-        if (tagRequest is null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrWhiteSpace(jwt))
             return Unauthorized();
 
         var result = await _tagsService.Create(tagRequest);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return CreatedAtAction(nameof(GetTagsByTitle), new { tagTitle = tagRequest.Title}, result.Data);
     }
 
     [HttpPut]
@@ -62,21 +50,15 @@ public class TagController(TagsService tagsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateTag(TagUpdateRequest tagRequest)
     {
-        if (tagRequest is null)
-            return BadRequest(ModelState);
-
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _tagsService.Update(tagRequest);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return NoContent();
     }
 
     [HttpDelete("{tagTitle}")]
@@ -85,17 +67,14 @@ public class TagController(TagsService tagsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteTag(string tagTitle)
     {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
         if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
             return Unauthorized();
 
         var result = await _tagsService.Delete(tagTitle);
 
-        if (!result.IsSuccess)
-            return BadRequest(result.Message);
+        if (!result)
+            return StatusCode(result.StatusCode, result.Error);
 
-        return Ok(result.Message);
+        return NoContent();
     }
 }

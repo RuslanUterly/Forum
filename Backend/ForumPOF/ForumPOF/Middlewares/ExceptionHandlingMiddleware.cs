@@ -24,7 +24,7 @@ public class ExceptionHandlingMiddleware(
                 context,
                 ex.Message,
                 HttpStatusCode.InternalServerError,
-                "Smth wrong");
+                "Что-то пошло не так");
         }
     }
 
@@ -40,11 +40,13 @@ public class ExceptionHandlingMiddleware(
         response.ContentType = "application/json";
         response.StatusCode = (int)httpStatusCode;
 
-        Error error = new Error(response.StatusCode, message);
+        var error = Result<string>.Fail(response.StatusCode, message);
 
-        string result = JsonSerializer.Serialize(error);
-
-        await response.WriteAsJsonAsync(result);
+        await response.WriteAsJsonAsync(new
+        {
+            error.StatusCode,
+            error.Error
+        });
     }
 }
 

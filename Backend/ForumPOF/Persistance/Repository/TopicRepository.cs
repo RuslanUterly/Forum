@@ -1,13 +1,7 @@
-﻿using Azure;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Persistance.Repository;
 
@@ -38,6 +32,10 @@ public class TopicRepository(ForumContext context) : ITopicRepository
     public async Task<IEnumerable<Topic>> GetTopicsByTitle(string title)
     {
         return await _context.Topics
+            .Include(t => t.User)
+            .Include(t => t.Category)
+            .Include(t => t.ThreadTags)
+                .ThenInclude(tt => tt.Tag)
             .AsNoTracking()
             .Where(t => t.Title.Contains(title))
             .ToArrayAsync();
@@ -46,6 +44,9 @@ public class TopicRepository(ForumContext context) : ITopicRepository
     public async Task<IEnumerable<Topic>> GetTopicsByUser(Ulid userId)
     {
         return await _context.Topics
+            .Include(t => t.Category)
+            .Include(t => t.ThreadTags)
+                .ThenInclude(tt => tt.Tag)
             .AsNoTracking()
             .Where(t => t.UserId == userId)
             .ToArrayAsync();
@@ -53,7 +54,13 @@ public class TopicRepository(ForumContext context) : ITopicRepository
 
     public async Task<Topic> GetTopicsById(Ulid id)
     {
-        return await _context.Topics 
+        return await _context.Topics
+            .Include(t => t.User)
+            .Include(t => t.Posts)
+                .ThenInclude(p => p.Comments)
+            .Include(t => t.Category)
+            .Include(t => t.ThreadTags)
+                .ThenInclude(tt => tt.Tag)
             .AsNoTracking()
             .FirstOrDefaultAsync(t => t.Id == id);
     }
@@ -72,9 +79,6 @@ public class TopicRepository(ForumContext context) : ITopicRepository
 
     public async Task<bool> DeleteTopic(Topic topic)
     {
-        var topicTags = topic.ThreadTags;
-        _context.TopicTags.RemoveRange(topicTags);
-
         _context.Remove(topic);
         return await Save();
     }
