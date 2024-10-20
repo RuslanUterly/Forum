@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Topics;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
@@ -23,8 +24,7 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopicsByUser()
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var topics = await _topicsService.ReceiveByUser(jwt);
 
@@ -35,9 +35,6 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopicsByName(string topicTitle)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
-
         var topics = await _topicsService.ReceiveByName(topicTitle);
 
         return Ok(topics);
@@ -52,13 +49,13 @@ public class TopicController(TopicsService topicsService) : Controller
         return Ok(topic);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateTopic([FromQuery] string[] tagTitles, [FromBody] TopicCreateRequest createTopicRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _topicsService.Create(jwt, createTopicRequest, tagTitles);
 
@@ -68,14 +65,14 @@ public class TopicController(TopicsService topicsService) : Controller
         return CreatedAtAction(nameof(GetTopicById), new { topicId = result.Data}, result.Data);
     }
 
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateTopic([FromQuery] string[] tagTitles, [FromBody] TopicUpdateRequest updateTopicRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _topicsService.Update(updateTopicRequest, tagTitles);
 
@@ -85,14 +82,14 @@ public class TopicController(TopicsService topicsService) : Controller
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{topicId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteTitle(Ulid topicId)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _topicsService.Delete(topicId);
 

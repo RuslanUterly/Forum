@@ -1,7 +1,5 @@
 ﻿using Application.Helper;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
-using System.Text.Json;
 
 namespace ForumPOF.Middlewares;
 

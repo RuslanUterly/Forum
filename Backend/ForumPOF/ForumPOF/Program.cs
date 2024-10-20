@@ -16,6 +16,7 @@ using ForumPOF.ModelBinders;
 using Infrastructure;
 using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Repository;
@@ -83,6 +84,12 @@ public class Program
 
         builder.Services.AddApiAuthentication(builder.Configuration);
 
+        builder.Services.Configure<CookiePolicyOptions>(options =>
+        {
+            options.HttpOnly = HttpOnlyPolicy.Always;
+            options.Secure = CookieSecurePolicy.Always;
+        });
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -108,6 +115,7 @@ public class Program
         );
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
+        app.UseMiddleware<JwtMiddleware>();
 
         app.UseHttpsRedirection();
         app.UseAuthentication();

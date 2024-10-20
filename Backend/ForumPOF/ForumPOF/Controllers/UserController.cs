@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Users;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
@@ -19,27 +20,27 @@ public class UserController(UsersService usersService) : Controller
         return Ok(users);
     }
 
+    [Authorize]
     [HttpGet("user")]
     [ProducesResponseType(200, Type = typeof(UserDetailsRequest))]
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetUser()
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var user = await _usersService.ReceiveUser(jwt);
 
         return Ok(user);
     }
 
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateUser([FromBody] UserUpdateRequest userRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _usersService.Update(jwt, userRequest);
 
@@ -49,14 +50,14 @@ public class UserController(UsersService usersService) : Controller
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteUser()
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _usersService.Delete(jwt);
 

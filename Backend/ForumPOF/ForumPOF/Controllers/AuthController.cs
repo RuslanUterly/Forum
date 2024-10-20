@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Users;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
@@ -45,8 +46,8 @@ public class AuthController(UsersService usersService) : ControllerBase
         return Ok();
     }
 
-
     [HttpPost("logout")]
+    [Authorize]
     public IActionResult Logout()
     {
         Response.Cookies.Delete("tasty-cookies");

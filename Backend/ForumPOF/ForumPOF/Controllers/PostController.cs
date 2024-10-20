@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Posts;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
@@ -37,13 +38,13 @@ public class PostController(PostsService postsService) : ControllerBase
         return Ok(post);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreatePost([FromBody] PostCreateRequest postRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _postsService.Create(jwt, postRequest);
 
@@ -53,14 +54,14 @@ public class PostController(PostsService postsService) : ControllerBase
         return CreatedAtAction(nameof(GetPostById), new { postId = result.Data}, result.Data);
     }
 
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdatePost([FromBody] PostUpdateRequest postRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _postsService.Update(postRequest);
 
@@ -70,14 +71,14 @@ public class PostController(PostsService postsService) : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{postId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeletePost(Ulid postId)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _postsService.Delete(postId);
 

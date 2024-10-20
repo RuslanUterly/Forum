@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Categories;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
@@ -28,6 +29,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
         return Ok(categoriy);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -41,6 +43,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
         return CreatedAtAction(nameof(GetCategoryByName), new { categoryName = categoryRequest.Name }, result.Data);
     }
 
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -55,6 +58,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{categoryName}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

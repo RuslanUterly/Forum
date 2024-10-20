@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Comments;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
@@ -37,13 +38,14 @@ public class CommentController(CommentsService commentsService) : ControllerBase
         return Ok(comment);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateComment([FromBody] CommentCreateRequest commentRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"]!;
+        //var userid = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId").Value);
 
         var result = await _commentsService.Create(jwt, commentRequest);
 
@@ -53,14 +55,14 @@ public class CommentController(CommentsService commentsService) : ControllerBase
         return CreatedAtAction(nameof(GetCommentById), new { commentId = result.Data }, result.Data);
     }
 
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateRequest commentRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"]!;
 
         var result = await _commentsService.Update(commentRequest);
 
@@ -70,14 +72,14 @@ public class CommentController(CommentsService commentsService) : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{commentId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteComment(Ulid commentId)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"]!;
 
         var result = await _commentsService.Delete(commentId);
 

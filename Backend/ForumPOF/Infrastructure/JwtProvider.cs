@@ -35,7 +35,9 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 
     public JwtSecurityToken VerifyToken(string jwt)
     {
-        var tokenHandler = new JwtSecurityTokenHandler()
+        try
+        {
+            var tokenHandler = new JwtSecurityTokenHandler()
             .ValidateToken(jwt, new TokenValidationParameters
             {
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Secretkey)),
@@ -44,6 +46,11 @@ public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
                 ValidateAudience = false,
             }, out SecurityToken validatedToken);
 
-        return (JwtSecurityToken)validatedToken;  
+            return validatedToken as JwtSecurityToken;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

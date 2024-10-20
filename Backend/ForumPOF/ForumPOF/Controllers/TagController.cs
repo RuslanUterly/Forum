@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Tags;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForumPOF.Controllers;
@@ -28,13 +29,13 @@ public class TagController(TagsService tagsService) : ControllerBase
         return Ok(tags);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateTag(TagCreateRequest tagRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrWhiteSpace(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _tagsService.Create(tagRequest);
 
@@ -44,14 +45,14 @@ public class TagController(TagsService tagsService) : ControllerBase
         return CreatedAtAction(nameof(GetTagsByTitle), new { tagTitle = tagRequest.Title}, result.Data);
     }
 
+    [Authorize]
     [HttpPut]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateTag(TagUpdateRequest tagRequest)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _tagsService.Update(tagRequest);
 
@@ -61,14 +62,14 @@ public class TagController(TagsService tagsService) : ControllerBase
         return NoContent();
     }
 
+    [Authorize]
     [HttpDelete("{tagTitle}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteTag(string tagTitle)
     {
-        if (!Request.Cookies.TryGetValue("tasty-cookies", out string? jwt) || string.IsNullOrEmpty(jwt))
-            return Unauthorized();
+        string jwt = Request.Cookies["tasty-cookies"];
 
         var result = await _tagsService.Delete(tagTitle);
 
