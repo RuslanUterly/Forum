@@ -35,10 +35,8 @@ public class PostsService(
         return post.Adapt<PostDetailsRequest>();
     }
 
-    public async Task<Result<Ulid>> Create(string jwt, PostCreateRequest postRequest)
+    public async Task<Result<Ulid>> Create(Ulid userId, PostCreateRequest postRequest)
     {
-        Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
-
         if (!await _topicRepository.TopicExistById(postRequest.TopicId))
             return Result<Ulid>.NotFound("Тема для поста не существует");
 
@@ -51,12 +49,14 @@ public class PostsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Update(PostUpdateRequest postRequest)
+    public async Task<Result> Update(Ulid userId, PostUpdateRequest postRequest)
     {
         if (!await _postRepository.PostExistById(postRequest.PostId))
             return Result.NotFound("Тема для поста не существует");
         
         var post = await _postRepository.GetPostById(postRequest.PostId);
+        //if (post.UserId != userId)
+        //    return Result.Fail(403, "У вас нет доступа к данному посту");
 
         post = Post.Update(post, postRequest.Content, DateTime.Now);
 
@@ -67,12 +67,14 @@ public class PostsService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid id)
+    public async Task<Result> Delete(Ulid userId, Ulid id)
     {
         if (!await _postRepository.PostExistById(id))
             return Result.NotFound("Тема для поста не существует");
 
         var post = await _postRepository.GetPostById(id);
+        //if (post.UserId != userId)
+        //    return Result.Fail(403, "У вас нет доступа к данному посту");
 
         var isRemoved = await _postRepository.DeletePost(post);
 

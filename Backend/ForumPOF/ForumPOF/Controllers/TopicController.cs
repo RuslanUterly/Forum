@@ -24,9 +24,9 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopicsByUser()
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var topics = await _topicsService.ReceiveByUser(jwt);
+        var topics = await _topicsService.ReceiveByUser(userId);
 
         return Ok(topics);
     }
@@ -55,9 +55,9 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateTopic([FromQuery] string[] tagTitles, [FromBody] TopicCreateRequest createTopicRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _topicsService.Create(jwt, createTopicRequest, tagTitles);
+        var result = await _topicsService.Create(userId, createTopicRequest, tagTitles);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -72,9 +72,9 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateTopic([FromQuery] string[] tagTitles, [FromBody] TopicUpdateRequest updateTopicRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _topicsService.Update(updateTopicRequest, tagTitles);
+        var result = await _topicsService.Update(userId, updateTopicRequest, tagTitles);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -89,9 +89,9 @@ public class TopicController(TopicsService topicsService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteTitle(Ulid topicId)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _topicsService.Delete(topicId);
+        var result = await _topicsService.Delete(userId, topicId);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

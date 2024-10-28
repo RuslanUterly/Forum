@@ -23,13 +23,13 @@ public class UsersService(
         return users.Adapt<IEnumerable<UserDetailsRequest>>();
     }
 
-    public async Task<UserDetailsRequest> ReceiveUser(string jwt)
+    public async Task<UserDetailsRequest> ReceiveUser(Ulid userId)
     {
-        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
-        if (id == default)
-            return new UserDetailsRequest();
+        //Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
+        //if (id == default)
+        //    return new UserDetailsRequest();
 
-        var user = await _userRepository.GetUserById(id);
+        var user = await _userRepository.GetUserById(userId);
         return user.Adapt<UserDetailsRequest>();
     }
 
@@ -86,15 +86,11 @@ public class UsersService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Update(string jwt, UserUpdateRequest userRequest)
+    public async Task<Result> Update(Ulid userId, UserUpdateRequest userRequest)
     {
-        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
-        if (id == default)
-            return Result.NotFound("Пользователя не существует");
-
         var passwordHash = _passwordHasher.Generate(userRequest.Password);
 
-        var user = await _userRepository.GetUserById(id);
+        var user = await _userRepository.GetUserById(userId);
 
         user = User.Update(user, userRequest.UserName, passwordHash, userRequest.Email, DateTime.Now);
 
@@ -105,13 +101,9 @@ public class UsersService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(string jwt)
+    public async Task<Result> Delete(Ulid userId)
     {
-        Ulid id = Reciever.UserUlid(_jwtProvider, jwt);
-        if (id == default)
-            return Result.NotFound("Пользователя не существует");
-
-        var user = await _userRepository.GetUserById(id);
+        var user = await _userRepository.GetUserById(userId);
 
         var isRemoved = await _userRepository.DeleteUser(user);
 

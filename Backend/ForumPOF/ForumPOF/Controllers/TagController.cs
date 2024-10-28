@@ -35,8 +35,6 @@ public class TagController(TagsService tagsService) : ControllerBase
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateTag(TagCreateRequest tagRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
-
         var result = await _tagsService.Create(tagRequest);
 
         if (!result)
@@ -52,8 +50,6 @@ public class TagController(TagsService tagsService) : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateTag(TagUpdateRequest tagRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
-
         var result = await _tagsService.Update(tagRequest);
 
         if (!result)
@@ -69,8 +65,6 @@ public class TagController(TagsService tagsService) : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteTag(string tagTitle)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
-
         var result = await _tagsService.Delete(tagTitle);
 
         if (!result)

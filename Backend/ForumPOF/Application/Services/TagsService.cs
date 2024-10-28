@@ -44,8 +44,6 @@ public class TagsService(
         var isCreated = await _tagRepository.CreateTag(tag);
 
         return isCreated ?
-            //Results.Created(string.Empty, tag.Id) :
-            //Results.StatusCode(StatusCodes.Status500InternalServerError);
             Result<Ulid>.Created(tag.Id) :
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }

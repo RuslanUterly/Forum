@@ -44,9 +44,9 @@ public class PostController(PostsService postsService) : ControllerBase
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreatePost([FromBody] PostCreateRequest postRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _postsService.Create(jwt, postRequest);
+        var result = await _postsService.Create(userId, postRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -61,9 +61,9 @@ public class PostController(PostsService postsService) : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdatePost([FromBody] PostUpdateRequest postRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _postsService.Update(postRequest);
+        var result = await _postsService.Update(userId, postRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -78,9 +78,9 @@ public class PostController(PostsService postsService) : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeletePost(Ulid postId)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _postsService.Delete(postId);
+        var result = await _postsService.Delete(userId, postId);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

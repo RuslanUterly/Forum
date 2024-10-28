@@ -26,9 +26,8 @@ public class TopicsService(
         return topics.Adapt<IEnumerable<TopicDetailsRequest>>();
     }
 
-    public async Task<IEnumerable<TopicDetailsRequest>> ReceiveByUser(string jwt)
+    public async Task<IEnumerable<TopicDetailsRequest>> ReceiveByUser(Ulid userId)
     {
-        Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
         var topics = await _topicRepository.GetTopicsByUser(userId);
 
         return topics.Adapt<IEnumerable<TopicDetailsRequest>>();
@@ -46,9 +45,8 @@ public class TopicsService(
         return topic.Adapt<TopicDetailsRequest>();
     }
  
-    public async Task<Result<Ulid>> Create(string jwt, TopicCreateRequest topicRequest, params string[] tagTitles)
+    public async Task<Result<Ulid>> Create(Ulid userId, TopicCreateRequest topicRequest, params string[] tagTitles)
     {
-        Ulid userId = Reciever.UserUlid(_jwtProvider, jwt);
         Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, topicRequest.CategoryName);
 
         if (categoryId == default)
@@ -70,7 +68,7 @@ public class TopicsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Update(TopicUpdateRequest topicRequest, params string[] tagTitles)
+    public async Task<Result> Update(Ulid userId, TopicUpdateRequest topicRequest, params string[] tagTitles)
     {
         if (!await _topicRepository.TopicExistById(topicRequest.TopicId))
             return Result.NotFound("Темы не существует");
@@ -88,6 +86,8 @@ public class TopicsService(
                 return Result.NotFound("Добавляемый тэг не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicRequest.TopicId);
+        //if (topic.UserId != userId)
+        //    return Result.Fail(403, "У вас нет доступа к данной теме");
 
         topic = Topic.Update(topic, topicRequest.Title, topicRequest.Content, categoryId, DateTime.Now);
 
@@ -98,12 +98,14 @@ public class TopicsService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid topicId)
+    public async Task<Result> Delete(Ulid userId, Ulid topicId)
     {
         if (!await _topicRepository.TopicExistById(topicId))
             return Result.NotFound("Темы не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicId);
+        //if (topic.UserId != userId)
+        //    return Result.Fail(403, "У вас нет доступа к данной теме");
 
         var isRemoved = await _topicRepository.DeleteTopic(topic);
 

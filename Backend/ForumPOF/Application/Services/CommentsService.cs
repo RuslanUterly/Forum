@@ -35,10 +35,8 @@ public class CommentsService(
         return comment.Adapt<CommentDetailsRequest>();
     }
     
-    public async Task<Result<Ulid>> Create(string jwt, CommentCreateRequest commentRequest)
+    public async Task<Result<Ulid>> Create(Ulid userId, CommentCreateRequest commentRequest)
     {
-        var userId = Reciever.UserUlid(_jwtProvider, jwt);
-
         if (!await _postRepository.PostExistById(commentRequest.PostId))
             return Result<Ulid>.NotFound("Пост не существует");
 
@@ -51,12 +49,14 @@ public class CommentsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
     
-    public async Task<Result> Update(CommentUpdateRequest commentRequest)
+    public async Task<Result> Update(Ulid userId, CommentUpdateRequest commentRequest)
     {
         if (!await _commentRepository.CommentExistById(commentRequest.Id))
             return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(commentRequest.Id);
+        //if (comment.UserId != userId)
+        //    return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
         comment = Comment.Update(comment, commentRequest.Content, DateTime.Now);
 
@@ -67,12 +67,14 @@ public class CommentsService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid id)
+    public async Task<Result> Delete(Ulid userId, Ulid id)
     {
         if (!await _commentRepository.CommentExistById(id))
             return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(id);
+        //if (comment.UserId != userId)
+        //    return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
         var isRemoved = await _commentRepository.DeleteComment(comment);
 

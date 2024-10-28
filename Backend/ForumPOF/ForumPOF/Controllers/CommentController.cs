@@ -44,10 +44,9 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     [ProducesResponseType(400)]
     public async Task<IActionResult> CreateComment([FromBody] CommentCreateRequest commentRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"]!;
-        //var userid = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId").Value);
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _commentsService.Create(jwt, commentRequest);
+        var result = await _commentsService.Create(userId, commentRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -62,9 +61,9 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateRequest commentRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"]!;
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _commentsService.Update(commentRequest);
+        var result = await _commentsService.Update(userId, commentRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -79,9 +78,9 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteComment(Ulid commentId)
     {
-        string jwt = Request.Cookies["tasty-cookies"]!;
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _commentsService.Delete(commentId);
+        var result = await _commentsService.Delete(userId, commentId);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

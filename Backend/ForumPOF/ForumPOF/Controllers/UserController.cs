@@ -26,9 +26,9 @@ public class UserController(UsersService usersService) : Controller
     [ProducesResponseType(400)]
     public async Task<IActionResult> GetUser()
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var user = await _usersService.ReceiveUser(jwt);
+        var user = await _usersService.ReceiveUser(userId);
 
         return Ok(user);
     }
@@ -40,9 +40,9 @@ public class UserController(UsersService usersService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> UpdateUser([FromBody] UserUpdateRequest userRequest)
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _usersService.Update(jwt, userRequest);
+        var result = await _usersService.Update(userId, userRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -57,9 +57,9 @@ public class UserController(UsersService usersService) : Controller
     [ProducesResponseType(404)]
     public async Task<IActionResult> DeleteUser()
     {
-        string jwt = Request.Cookies["tasty-cookies"];
+        var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _usersService.Delete(jwt);
+        var result = await _usersService.Delete(userId);
 
         Response.Cookies.Delete("tasty-cookies");
 
