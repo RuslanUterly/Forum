@@ -91,6 +91,8 @@ public class UsersService(
         var passwordHash = _passwordHasher.Generate(userRequest.Password);
 
         var user = await _userRepository.GetUserById(userId);
+        if (user.Id != userId)
+            return Result.Fail(403, "У вас нет доступа к данной операции");
 
         user = User.Update(user, userRequest.UserName, passwordHash, userRequest.Email, DateTime.Now);
 
@@ -104,6 +106,8 @@ public class UsersService(
     public async Task<Result> Delete(Ulid userId)
     {
         var user = await _userRepository.GetUserById(userId);
+        if (user.Id != userId)
+            return Result.Fail(403, "У вас нет доступа к данной операции");
 
         var isRemoved = await _userRepository.DeleteUser(user);
 

@@ -86,8 +86,8 @@ public class TopicsService(
                 return Result.NotFound("Добавляемый тэг не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicRequest.TopicId);
-        //if (topic.UserId != userId)
-        //    return Result.Fail(403, "У вас нет доступа к данной теме");
+        if (topic.UserId != userId)
+            return Result.Fail(403, "У вас нет доступа к данной теме");
 
         topic = Topic.Update(topic, topicRequest.Title, topicRequest.Content, categoryId, DateTime.Now);
 
@@ -104,8 +104,8 @@ public class TopicsService(
             return Result.NotFound("Темы не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicId);
-        //if (topic.UserId != userId)
-        //    return Result.Fail(403, "У вас нет доступа к данной теме");
+        if (topic.UserId != userId)
+            return Result.Fail(403, "У вас нет доступа к данной теме");
 
         var isRemoved = await _topicRepository.DeleteTopic(topic);
 

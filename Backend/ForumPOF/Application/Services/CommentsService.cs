@@ -55,8 +55,8 @@ public class CommentsService(
             return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(commentRequest.Id);
-        //if (comment.UserId != userId)
-        //    return Result.Fail(403, "У вас нет доступа к данному комментарию");
+        if (comment.UserId != userId)
+            return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
         comment = Comment.Update(comment, commentRequest.Content, DateTime.Now);
 
@@ -73,8 +73,8 @@ public class CommentsService(
             return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(id);
-        //if (comment.UserId != userId)
-        //    return Result.Fail(403, "У вас нет доступа к данному комментарию");
+        if (comment.UserId != userId)
+            return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
         var isRemoved = await _commentRepository.DeleteComment(comment);
 

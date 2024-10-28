@@ -55,8 +55,8 @@ public class PostsService(
             return Result.NotFound("Тема для поста не существует");
         
         var post = await _postRepository.GetPostById(postRequest.PostId);
-        //if (post.UserId != userId)
-        //    return Result.Fail(403, "У вас нет доступа к данному посту");
+        if (post.UserId != userId)
+            return Result.Fail(403, "У вас нет доступа к данному посту");
 
         post = Post.Update(post, postRequest.Content, DateTime.Now);
 
@@ -73,8 +73,8 @@ public class PostsService(
             return Result.NotFound("Тема для поста не существует");
 
         var post = await _postRepository.GetPostById(id);
-        //if (post.UserId != userId)
-        //    return Result.Fail(403, "У вас нет доступа к данному посту");
+        if (post.UserId != userId)
+            return Result.Fail(403, "У вас нет доступа к данному посту");
 
         var isRemoved = await _postRepository.DeletePost(post);
 
