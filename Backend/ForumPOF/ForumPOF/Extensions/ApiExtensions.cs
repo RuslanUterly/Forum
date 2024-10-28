@@ -1,6 +1,7 @@
 ﻿using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security;
 using System.Text;
 
 namespace ForumPOF.Extensions;
@@ -46,7 +47,5 @@ public static class ApiExtensions
                     }
                 };
             });
-
-        services.AddAuthorization();
     }
 }

@@ -84,12 +84,6 @@ public class Program
 
         builder.Services.AddApiAuthentication(builder.Configuration);
 
-        builder.Services.Configure<CookiePolicyOptions>(options =>
-        {
-            options.HttpOnly = HttpOnlyPolicy.Always;
-            options.Secure = CookieSecurePolicy.Always;
-        });
-
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
@@ -118,6 +112,14 @@ public class Program
         app.UseMiddleware<JwtMiddleware>();
 
         app.UseHttpsRedirection();
+
+        app.UseCookiePolicy(new CookiePolicyOptions()
+        {
+            MinimumSameSitePolicy = SameSiteMode.Strict,
+            HttpOnly = HttpOnlyPolicy.Always,
+            Secure = CookieSecurePolicy.Always,
+        });
+
         app.UseAuthentication();
         app.UseAuthorization();
 
