@@ -2,6 +2,7 @@
 using Persistance.Data;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
+using System.Linq;
 
 namespace Persistance.Repository;
 
@@ -85,35 +86,25 @@ public class TopicRepository(ForumContext context) : ITopicRepository
 
     public async Task<bool> UpdateTopic(Tag[] tags, Topic topic)
     {
-        var topicTags = await _context.TopicTags
-            .Where(tt => tt.TopicId == topic.Id)
-            .Select(tt => tt.Tag)
-            .ToArrayAsync();
+        var topicTags = topic.ThreadTags.Select(tt => tt.Tag);
 
-        // Теги для удаления
-        var tagsToRemove = topicTags
-            .Where(t => !tags.Contains(t))
-            .ToList();
+        var newTags = tags.Select(t => t.Id).ToHashSet();
+        var currentTags = topic.ThreadTags.Select(tt => tt.TagId).ToHashSet();
 
-        // Теги для добавления
-        var tagsToAdd = tags
-            .Where(t => !topicTags.Contains(t))
-            .Select(tag => 
-                TopicTag.Create(Ulid.NewUlid(), topic.Id, tag.Id)
-            );
+        var tagsToDelete = topicTags.Where(t => !newTags.Contains(t.Id));
+        var tagsToAdd = tags.Where(t => !currentTags.Contains(t.Id));
 
-        if (tagsToRemove.Any())
+        if (tagsToDelete.Any())
         {
-            var tagsToRemoveIds = tagsToRemove.Select(t => t.Id);
-            var topicTagsToRemove = await _context.TopicTags
-                .Where(tt => tagsToRemoveIds.Contains(tt.TagId))
-                .ToListAsync();
-
-            _context.TopicTags.RemoveRange(topicTagsToRemove);
+            var removeTopicTags = topic.ThreadTags.Where(tt => tagsToDelete.Select(t => t.Id).Contains(tt.TagId));
+            _context.TopicTags.RemoveRange(removeTopicTags);
         }
 
         if (tagsToAdd.Any())
-            await _context.TopicTags.AddRangeAsync(tagsToAdd);
+        {
+            var newTopicTags = tagsToAdd.Select(tag => TopicTag.Create(Ulid.NewUlid(), topic.Id, tag.Id));
+            _context.TopicTags.AddRange(newTopicTags);
+        }
 
         _context.Update(topic);
         return await Save();

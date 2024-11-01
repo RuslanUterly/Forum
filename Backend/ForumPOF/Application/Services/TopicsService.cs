@@ -45,12 +45,12 @@ public class TopicsService(
         return topic.Adapt<TopicDetailsRequest>();
     }
  
-    public async Task<Result<Ulid>> Create(Ulid userId, TopicCreateRequest topicRequest, params string[] tagTitles)
+    public async Task<Result<Ulid>> Create(Ulid userId, Ulid categoryId, TopicCreateRequest topicRequest, params string[] tagTitles)
     {
-        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, topicRequest.CategoryName);
+        //Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, topicRequest.CategoryName);
 
-        if (categoryId == default)
-            return Result<Ulid>.NotFound("Категории не существует"); 
+        //if (categoryId == default)
+        //    return Result<Ulid>.NotFound("Категории не существует"); 
 
         var tagTasks = tagTitles.Select(_tagRepository.GetTagByTitle);
         var tags = await Task.WhenAll(tagTasks);
@@ -68,15 +68,15 @@ public class TopicsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Update(Ulid userId, TopicUpdateRequest topicRequest, params string[] tagTitles)
+    public async Task<Result> Update(Ulid userId, Ulid topicId, Ulid categoryId, TopicUpdateRequest topicRequest, params string[] tagTitles)
     {
-        if (!await _topicRepository.TopicExistById(topicRequest.TopicId))
-            return Result.NotFound("Темы не существует");
+        //if (!await _topicRepository.TopicExistById(topicId))
+        //    return Result.NotFound("Темы не существует");
 
-        Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, topicRequest.CategoryName);
+        //Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
 
-        if (categoryId == default)
-            return Result.NotFound("Категории не существует");
+        //if (categoryId == default)
+        //    return Result.NotFound("Категории не существует");
 
         var tagTasks = tagTitles.Select(_tagRepository.GetTagByTitle);
         var tags = await Task.WhenAll(tagTasks);
@@ -85,7 +85,7 @@ public class TopicsService(
             if (tag is null)
                 return Result.NotFound("Добавляемый тэг не существует");
 
-        var topic = await _topicRepository.GetTopicsById(topicRequest.TopicId);
+        var topic = await _topicRepository.GetTopicsById(topicId);
         if (topic.UserId != userId)
             return Result.Fail(403, "У вас нет доступа к данной теме");
 
@@ -100,8 +100,8 @@ public class TopicsService(
 
     public async Task<Result> Delete(Ulid userId, Ulid topicId)
     {
-        if (!await _topicRepository.TopicExistById(topicId))
-            return Result.NotFound("Темы не существует");
+        //if (!await _topicRepository.TopicExistById(topicId))
+        //    return Result.NotFound("Темы не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicId);
         if (topic.UserId != userId)

@@ -11,8 +11,8 @@ public class TopicCreateValidator : AbstractValidator<TopicCreateRequest>
             .TopicTitle();
         RuleFor(topic => topic.Content)
             .TopicContent();
-        RuleFor(topic => topic.CategoryName)
-            .NotEmpty().WithMessage("Категория не может быть пустой");
+        //RuleFor(topic => topic.CategoryName)
+        //    .NotEmpty().WithMessage("Категория не может быть пустой");
     }
 }
 
@@ -24,7 +24,7 @@ public class TopicUpdateValidator : AbstractValidator<TopicUpdateRequest>
             .TopicTitle();
         RuleFor(topic => topic.Content)
             .TopicContent();
-        RuleFor(topic => topic.CategoryName)
-            .NotEmpty().WithMessage("Категория не может быть пустой");
+        //RuleFor(topic => topic.CategoryName)
+        //    .NotEmpty().WithMessage("Категория не может быть пустой");
     }
 }

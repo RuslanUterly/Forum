@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Tags;
 using Application.Services;
+using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,7 @@ public class TagController(TagsService tagsService) : ControllerBase
     }
 
     [Authorize]
+    [ServiceFilter(typeof(TagExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -44,13 +46,14 @@ public class TagController(TagsService tagsService) : ControllerBase
     }
 
     [Authorize]
-    [HttpPut]
+    [ServiceFilter(typeof(TagExistFilter))]
+    [HttpPut("{tagId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateTag(TagUpdateRequest tagRequest)
+    public async Task<IActionResult> UpdateTag(Ulid tagId, TagUpdateRequest tagRequest)
     {
-        var result = await _tagsService.Update(tagRequest);
+        var result = await _tagsService.Update(tagId, tagRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -59,13 +62,14 @@ public class TagController(TagsService tagsService) : ControllerBase
     }
 
     [Authorize]
-    [HttpDelete("{tagTitle}")]
+    [ServiceFilter(typeof(TagExistFilter))]
+    [HttpDelete("{tagId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteTag(string tagTitle)
+    public async Task<IActionResult> DeleteTag(Ulid tagId)
     {
-        var result = await _tagsService.Delete(tagTitle);
+        var result = await _tagsService.Delete(tagId);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

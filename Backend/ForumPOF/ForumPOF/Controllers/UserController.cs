@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Users;
 using Application.Services;
+using ForumPOF.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,6 +35,7 @@ public class UserController(UsersService usersService) : Controller
     }
 
     [Authorize]
+    [SkipLogging]
     [HttpPut]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

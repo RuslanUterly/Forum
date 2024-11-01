@@ -35,11 +35,11 @@ public class UsersService(
 
     public async Task<Result<Ulid>> Register(RegisterUserRequest userRequest)
     {
-        if (await _userRepository.UserExistByEmail(userRequest.Email))
-            return Result<Ulid>.BadRequest("Пользователь уже зарегистрирован");
+        //if (await _userRepository.UserExistByEmail(userRequest.Email))
+        //    return Result<Ulid>.BadRequest("Пользователь уже зарегистрирован");
 
-        if (await _userRepository.UserExistByUsername(userRequest.UserName))
-            return Result<Ulid>.BadRequest("Имя пользователя занято");
+        //if (await _userRepository.UserExistByUsername(userRequest.UserName))
+        //    return Result<Ulid>.BadRequest("Имя пользователя занято");
 
         var hashedPassword = _passwordHasher.Generate(userRequest.Password);
 
@@ -53,8 +53,8 @@ public class UsersService(
 
     public async Task<Result<string>> Login(LoginUserRequest userRequest)
     {
-        if (!await _userRepository.UserExistByEmail(userRequest.Email))
-            return Result<string>.NotFound("Пользователь не найден");
+        //if (!await _userRepository.UserExistByEmail(userRequest.Email))
+        //    return Result<string>.NotFound("Пользователь не найден");
 
         var user = await _userRepository.GetUserByEmail(userRequest.Email);
 
@@ -70,8 +70,8 @@ public class UsersService(
 
     public async Task<Result> Reestablish(ReestablishUserRequest userRequest)
     {
-        if (!await _userRepository.UserExistByEmail(userRequest.Email))
-            return Result.NotFound("Пользователь не найден");
+        //if (!await _userRepository.UserExistByEmail(userRequest.Email))
+        //    return Result.NotFound("Пользователь не найден");
 
         var passwordHash = _passwordHasher.Generate(userRequest.Password);
 

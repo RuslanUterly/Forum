@@ -26,8 +26,8 @@ public class CategoriesService(
 
     public async Task<Result<Ulid>> CreateCategory(CategoryCreateRequest categoryRequest)
     {
-        if (await _categoryRepository.CategoryExistByName(categoryRequest.Name))
-            return Result<Ulid>.BadRequest("Категория уже создана");
+        //if (await _categoryRepository.CategoryExistByName(categoryRequest.Name))
+        //    return Result<Ulid>.BadRequest("Категория уже создана");
 
         var category = Category.Create(Ulid.NewUlid(), categoryRequest.Name, DateTime.Now);
 
@@ -38,15 +38,15 @@ public class CategoriesService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
     
-    public async Task<Result> UpdateCategory(CategoryUpdateRequest categoryRequest)
+    public async Task<Result> UpdateCategory(Ulid categoryId, CategoryUpdateRequest categoryRequest)
     {
-        if (!await _categoryRepository.CategoryExistById(categoryRequest.Id))
-            return Result.NotFound("Категория не найдена"); 
+        //if (!await _categoryRepository.CategoryExistById(categoryId))
+        //    return Result.NotFound("Категория не найдена"); 
 
-        if (await _categoryRepository.CategoryExistByName(categoryRequest.Name))
-            return Result.BadRequest("Категория уже создана");
+        //if (await _categoryRepository.CategoryExistByName(categoryRequest.Name))
+        //    return Result.BadRequest("Категория уже создана");
 
-        var category = await _categoryRepository.GetCategoryById(categoryRequest.Id);
+        var category = await _categoryRepository.GetCategoryById(categoryId);
 
         category = Category.Update(category, categoryRequest.Name);
 
@@ -57,12 +57,13 @@ public class CategoriesService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> DeleteCategory(string categoryName)
+    public async Task<Result> DeleteCategory(Ulid categoryId)
     {
-        if (!await _categoryRepository.CategoryExistByName(categoryName))
-            return Result.NotFound("Категория не найдена");
+        //if (!await _categoryRepository.CategoryExistByName(categoryName))
+        //    return Result.NotFound("Категория не найдена");
 
-        var category = await _categoryRepository.GetCategoryByName(categoryName);
+        //var category = await _categoryRepository.GetCategoryByName(categoryName);
+        var category = await _categoryRepository.GetCategoryById(categoryId);
 
         var isUpdated = await _categoryRepository.DeleteCategory(category);
 

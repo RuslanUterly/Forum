@@ -11,12 +11,14 @@ using Application.Validation;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using ForumPOF.Extensions;
+using ForumPOF.Filters;
 using ForumPOF.Middlewares;
 using ForumPOF.ModelBinders;
 using Infrastructure;
 using Mapster;
 using MapsterMapper;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.EntityFrameworkCore;
 using Persistance.Data;
 using Persistance.Repository;
@@ -46,12 +48,13 @@ public class Program
         var assemblyApplication = Assembly.Load("Application");
         var assemblyPersistance = Assembly.Load("Persistance");
         var assemblyInfrastructure = Assembly.Load("Infrastructure");
+        var assemblyPresentation = Assembly.Load("ForumPOF");
 
         builder.Services.AddValidatorsFromAssembly(assemblyApplication);
         builder.Services.AddFluentValidationAutoValidation();
 
         builder.Services.Scan(scan => scan
-            .FromAssemblies(assemblyApplication, assemblyPersistance, assemblyInfrastructure)
+            .FromAssemblies(assemblyApplication, assemblyPersistance, assemblyInfrastructure, assemblyPresentation)
             .AddClasses(classes => classes.InNamespaces("Persistance.Repository"))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
@@ -61,6 +64,9 @@ public class Program
             .AddClasses(classes => classes.InNamespaces("Infrastructure"))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime()
+             .AddClasses(classes => classes.InNamespaces("ForumPOF.Filters"))
+                 .AsSelf()
+                 .WithScopedLifetime()    
             );
 
         //builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -89,7 +95,10 @@ public class Program
 
         builder.Services.AddDbContext<ForumContext>(options =>
         {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            options
+            .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+            .EnableSensitiveDataLogging();
+
         });
 
         var app = builder.Build();
@@ -110,6 +119,7 @@ public class Program
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseMiddleware<JwtMiddleware>();
+        app.UseMiddleware<LoggerMiddleware>();
 
         app.UseHttpsRedirection();
 

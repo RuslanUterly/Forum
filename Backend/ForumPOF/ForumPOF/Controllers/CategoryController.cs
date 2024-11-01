@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Categories;
 using Application.Services;
+using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,6 +31,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
     }
 
     [Authorize]
+    [ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -44,13 +46,14 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
     }
 
     [Authorize]
-    [HttpPut]
+    [ServiceFilter(typeof(CategoryExistFilter))]
+    [HttpPut("{categoryId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateCategory(CategoryUpdateRequest categoryRequest)
+    public async Task<IActionResult> UpdateCategory(Ulid categoryId, [FromBody] CategoryUpdateRequest categoryRequest)
     {
-        var result = await _categoryService.UpdateCategory(categoryRequest);
+        var result = await _categoryService.UpdateCategory(categoryId, categoryRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -59,13 +62,14 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
     }
 
     [Authorize]
-    [HttpDelete("{categoryName}")]
+    [ServiceFilter(typeof(CategoryExistFilter))]
+    [HttpDelete("{categoryId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteCategory(string categoryName)
+    public async Task<IActionResult> DeleteCategory(Ulid categoryId)
     {
-        var result = await _categoryService.DeleteCategory(categoryName);
+        var result = await _categoryService.DeleteCategory(categoryId);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

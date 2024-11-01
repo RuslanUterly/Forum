@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Posts;
 using Application.Services;
+using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,14 +40,15 @@ public class PostController(PostsService postsService) : ControllerBase
     }
 
     [Authorize]
-    [HttpPost]
+    [ServiceFilter(typeof(TopicExistFilter))]
+    [HttpPost("{topicId}")]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreatePost([FromBody] PostCreateRequest postRequest)
+    public async Task<IActionResult> CreatePost(Ulid topicId, [FromBody] PostCreateRequest postRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _postsService.Create(userId, postRequest);
+        var result = await _postsService.Create(userId, topicId, postRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -55,15 +57,16 @@ public class PostController(PostsService postsService) : ControllerBase
     }
 
     [Authorize]
-    [HttpPut]
+    [ServiceFilter(typeof(PostExistFilter))]
+    [HttpPut("{postId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdatePost([FromBody] PostUpdateRequest postRequest)
+    public async Task<IActionResult> UpdatePost(Ulid postId, [FromBody] PostUpdateRequest postRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _postsService.Update(userId, postRequest);
+        var result = await _postsService.Update(userId, postId, postRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -72,6 +75,7 @@ public class PostController(PostsService postsService) : ControllerBase
     }
 
     [Authorize]
+    [ServiceFilter(typeof(PostExistFilter))]
     [HttpDelete("{postId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

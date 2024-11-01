@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Topics;
 using Application.Services;
+using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +21,7 @@ public class TopicController(TopicsService topicsService) : Controller
         return Ok(topics);
     }
 
+    [Authorize]
     [HttpGet("byUser")]
     [ProducesResponseType(200, Type = typeof(IEnumerable<TopicDetailsRequest>))]
     public async Task<IActionResult> GetTopicsByUser()
@@ -50,14 +52,15 @@ public class TopicController(TopicsService topicsService) : Controller
     }
 
     [Authorize]
+    [ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateTopic([FromQuery] string[] tagTitles, [FromBody] TopicCreateRequest createTopicRequest)
+    public async Task<IActionResult> CreateTopic(Ulid categoryId, [FromQuery] string[] tagTitles, [FromBody] TopicCreateRequest createTopicRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _topicsService.Create(userId, createTopicRequest, tagTitles);
+        var result = await _topicsService.Create(userId, categoryId, createTopicRequest, tagTitles);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -66,15 +69,17 @@ public class TopicController(TopicsService topicsService) : Controller
     }
 
     [Authorize]
-    [HttpPut]
+    [ServiceFilter(typeof(TopicExistFilter))]
+    [ServiceFilter(typeof(CategoryExistFilter))]
+    [HttpPut("{topicId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateTopic([FromQuery] string[] tagTitles, [FromBody] TopicUpdateRequest updateTopicRequest)
+    public async Task<IActionResult> UpdateTopic(Ulid topicId, Ulid categoryId, [FromQuery] string[] tagTitles, [FromBody] TopicUpdateRequest updateTopicRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _topicsService.Update(userId, updateTopicRequest, tagTitles);
+        var result = await _topicsService.Update(userId, topicId, categoryId, updateTopicRequest, tagTitles);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -83,11 +88,12 @@ public class TopicController(TopicsService topicsService) : Controller
     }
 
     [Authorize]
+    [ServiceFilter(typeof(TopicExistFilter))]
     [HttpDelete("{topicId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> DeleteTitle(Ulid topicId)
+    public async Task<IActionResult> DeleteTopic(Ulid topicId)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 

@@ -1,5 +1,8 @@
 ﻿using Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.IdentityModel.Tokens;
 using System.Security;
 using System.Text;
@@ -47,5 +50,26 @@ public static class ApiExtensions
                     }
                 };
             });
+    }
+
+    public static void DynamicLog(this ILogger logger, string message, int statusCode)
+    {
+        switch (statusCode)
+        {
+            case 200:
+            case 204:
+            case 201:
+                logger.LogInformation(message);
+                break;
+            case 400:
+            case 401:
+            case 403:
+            case 404:
+            case 500:
+                logger.LogError(message);
+                break;
+            default:
+                break;
+        }
     }
 }

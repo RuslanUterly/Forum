@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Comments;
 using Application.Services;
+using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,14 +40,15 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     }
 
     [Authorize]
-    [HttpPost]
+    [ServiceFilter(typeof(PostExistFilter))]
+    [HttpPost("{postId}")]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> CreateComment([FromBody] CommentCreateRequest commentRequest)
+    public async Task<IActionResult> CreateComment(Ulid postId, [FromBody] CommentCreateRequest commentRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _commentsService.Create(userId, commentRequest);
+        var result = await _commentsService.Create(userId, postId, commentRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -55,15 +57,16 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     }
 
     [Authorize]
-    [HttpPut]
+    [ServiceFilter(typeof(CommentExistFilter))]
+    [HttpPut("{commentId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
     [ProducesResponseType(404)]
-    public async Task<IActionResult> UpdateComment([FromBody] CommentUpdateRequest commentRequest)
+    public async Task<IActionResult> UpdateComment(Ulid commentId, [FromBody] CommentUpdateRequest commentRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
 
-        var result = await _commentsService.Update(userId, commentRequest);
+        var result = await _commentsService.Update(userId, commentId, commentRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -72,6 +75,7 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     }
 
     [Authorize]
+    [ServiceFilter(typeof(CommentExistFilter))]
     [HttpDelete("{commentId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

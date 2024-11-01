@@ -35,12 +35,12 @@ public class CommentsService(
         return comment.Adapt<CommentDetailsRequest>();
     }
     
-    public async Task<Result<Ulid>> Create(Ulid userId, CommentCreateRequest commentRequest)
+    public async Task<Result<Ulid>> Create(Ulid userId, Ulid postId, CommentCreateRequest commentRequest)
     {
-        if (!await _postRepository.PostExistById(commentRequest.PostId))
-            return Result<Ulid>.NotFound("Пост не существует");
+        //if (!await _postRepository.PostExistById(commentRequest.PostId))
+        //    return Result<Ulid>.NotFound("Пост не существует");
 
-        var comment = Comment.Create(Ulid.NewUlid(), commentRequest.PostId, userId, commentRequest.Content, DateTime.Now);
+        var comment = Comment.Create(Ulid.NewUlid(), postId, userId, commentRequest.Content, DateTime.Now);
 
         var isCreated = await _commentRepository.CreateComment(comment);
 
@@ -49,12 +49,12 @@ public class CommentsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
     
-    public async Task<Result> Update(Ulid userId, CommentUpdateRequest commentRequest)
+    public async Task<Result> Update(Ulid userId, Ulid commentId, CommentUpdateRequest commentRequest)
     {
-        if (!await _commentRepository.CommentExistById(commentRequest.Id))
-            return Result.NotFound("Комментария не существует");
+        //if (!await _commentRepository.CommentExistById(commentId))
+        //    return Result.NotFound("Комментария не существует");
 
-        var comment = await _commentRepository.GetCommentById(commentRequest.Id);
+        var comment = await _commentRepository.GetCommentById(commentId);
         if (comment.UserId != userId)
             return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
@@ -67,12 +67,12 @@ public class CommentsService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid userId, Ulid id)
+    public async Task<Result> Delete(Ulid userId, Ulid commentId)
     {
-        if (!await _commentRepository.CommentExistById(id))
-            return Result.NotFound("Комментария не существует");
+        //if (!await _commentRepository.CommentExistById(id))
+        //    return Result.NotFound("Комментария не существует");
 
-        var comment = await _commentRepository.GetCommentById(id);
+        var comment = await _commentRepository.GetCommentById(commentId);
         if (comment.UserId != userId)
             return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
