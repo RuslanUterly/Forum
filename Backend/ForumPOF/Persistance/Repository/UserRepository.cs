@@ -24,6 +24,7 @@ public class UserRepository(ForumContext context) : IUserRepository
     {
         return await _context.Users
             .AsNoTracking()
+            .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Id == id);
     }
 
@@ -31,6 +32,7 @@ public class UserRepository(ForumContext context) : IUserRepository
     {
         return await _context.Users
             .AsNoTracking()
+            .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == email);
     }
 
@@ -38,6 +40,7 @@ public class UserRepository(ForumContext context) : IUserRepository
     {
         return await _context.Users
             .AsNoTracking()
+            .Include(u => u.Role)
             .ToArrayAsync();
     }
 
@@ -49,6 +52,11 @@ public class UserRepository(ForumContext context) : IUserRepository
 
     public async Task<bool> DeleteUser(User user)
     {
+        _context.Topics
+            .Where(t => t.UserId == user.Id)
+            .ToList()
+            .ForEach(t => t.UserId = null);
+
         _context.Remove(user);
         return await Save();
     }

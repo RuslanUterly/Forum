@@ -10,7 +10,7 @@ export default function Login() {
       event.preventDefault();
 
       try {
-        const response = await fetch('https://localhost:7111/api/auth/login', {
+        const response = await fetch('https://localhost:7111/auth/login', {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

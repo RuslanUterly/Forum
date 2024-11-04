@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Persistance.Enums;
 
 namespace Persistance.Configurations;
 
@@ -29,6 +30,29 @@ public class UserConfiguration : UlidConverter, IEntityTypeConfiguration<User>
 
         builder.HasIndex(u => u.Email)
                .IsUnique();
+
+        builder.HasOne(u => u.Role)
+               .WithMany()
+               .HasForeignKey(u => u.RoleId)
+               .OnDelete(DeleteBehavior.Restrict);
+    }
+}
+
+public class RoleConfiguration : IEntityTypeConfiguration<Role>
+{
+    public void Configure(EntityTypeBuilder<Role> builder)
+    {
+        builder.Property(c => c.Id);
+
+        var roles = Enum
+            .GetValues<Part>()
+            .Select(r => new Role
+            {
+                Id = (int)r,
+                Name = r.ToString()
+            });
+
+        builder.HasData(roles);
     }
 }
 
@@ -41,6 +65,9 @@ public class CategoryConfiguration : UlidConverter, IEntityTypeConfiguration<Cat
 
         builder.Property(c => c.Id)
                .HasConversion(ulidConverter);
+
+        builder.Property(c => c.Name)
+               .UseCollation("SQL_Latin1_General_CP1_CI_AS");
     }
 }
 
@@ -50,7 +77,6 @@ public class CommentConfiguration : UlidConverter, IEntityTypeConfiguration<Comm
     {
         builder.Property(c => c.Id)
                .HasConversion(ulidConverter);
-
 
         builder.Property(c => c.PostId)
                .HasConversion(ulidConverter);

@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.Users;
+﻿using Application.DTOs.Roles;
+
+namespace Application.DTOs.Users;
 
 public class UserDetailsRequest
 {
@@ -8,4 +10,5 @@ public class UserDetailsRequest
     public string Email { get; set; }
     public DateTime Created { get; set; }
     public DateTime Updated { get; set; }
+    public RoleRequest Role { get; set; }
 }
