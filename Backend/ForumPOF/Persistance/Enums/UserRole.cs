@@ -1,6 +1,6 @@
 ﻿namespace Persistance.Enums;
 
-public enum Part
+public enum UserRole
 {
     Admin = 1,
     User = 2,

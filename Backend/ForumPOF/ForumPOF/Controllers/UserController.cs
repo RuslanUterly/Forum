@@ -3,6 +3,8 @@ using Application.Services;
 using ForumPOF.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Persistance.Enums;
+using System.Security.Claims;
 
 namespace ForumPOF.Controllers;
 
@@ -21,7 +23,7 @@ public class UserController(UsersService usersService) : Controller
         return Ok(users);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [HttpGet("user")]
     [ProducesResponseType(200, Type = typeof(UserDetailsRequest))]
     [ProducesResponseType(400)]
@@ -34,7 +36,7 @@ public class UserController(UsersService usersService) : Controller
         return Ok(user);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [SkipLogging]
     [HttpPut]
     [ProducesResponseType(204)]
@@ -43,8 +45,9 @@ public class UserController(UsersService usersService) : Controller
     public async Task<IActionResult> UpdateUser([FromBody] UserUpdateRequest userRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _usersService.Update(userId, userRequest);
+        var result = await _usersService.Update(userId, userRole, userRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -52,7 +55,7 @@ public class UserController(UsersService usersService) : Controller
         return NoContent();
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [HttpDelete]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -60,8 +63,9 @@ public class UserController(UsersService usersService) : Controller
     public async Task<IActionResult> DeleteUser()
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _usersService.Delete(userId);
+        var result = await _usersService.Delete(userId, userRole);
 
         Response.Cookies.Delete("tasty-cookies");
 

@@ -3,8 +3,10 @@ using Application.Helper;
 using Application.Interfaces.Auth;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using Persistance.Enums;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
+using System.Data;
 
 namespace Application.Services;
 
@@ -49,13 +51,13 @@ public class CommentsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
     
-    public async Task<Result> Update(Ulid userId, Ulid commentId, CommentUpdateRequest commentRequest)
+    public async Task<Result> Update(Ulid userId, Ulid commentId, UserRole role, CommentUpdateRequest commentRequest)
     {
         //if (!await _commentRepository.CommentExistById(commentId))
         //    return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(commentId);
-        if (comment.UserId != userId)
+        if (comment.UserId != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
         comment = Comment.Update(comment, commentRequest.Content, DateTime.Now);
@@ -67,13 +69,13 @@ public class CommentsService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid userId, Ulid commentId)
+    public async Task<Result> Delete(Ulid userId, UserRole role, Ulid commentId)
     {
         //if (!await _commentRepository.CommentExistById(id))
         //    return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(commentId);
-        if (comment.UserId != userId)
+        if (comment.UserId != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данному комментарию");
 
         var isRemoved = await _commentRepository.DeleteComment(comment);

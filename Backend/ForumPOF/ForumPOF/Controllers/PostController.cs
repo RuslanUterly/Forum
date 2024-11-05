@@ -1,8 +1,11 @@
 ﻿using Application.DTOs.Posts;
 using Application.Services;
+using ForumPOF.Attributes;
 using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Persistance.Enums;
+using System.Security.Claims;
 
 namespace ForumPOF.Controllers;
 
@@ -39,7 +42,7 @@ public class PostController(PostsService postsService) : ControllerBase
         return Ok(post);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(TopicExistFilter))]
     [HttpPost("{topicId}")]
     [ProducesResponseType(201)]
@@ -56,7 +59,7 @@ public class PostController(PostsService postsService) : ControllerBase
         return CreatedAtAction(nameof(GetPostById), new { postId = result.Data}, result.Data);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(PostExistFilter))]
     [HttpPut("{postId}")]
     [ProducesResponseType(204)]
@@ -65,8 +68,9 @@ public class PostController(PostsService postsService) : ControllerBase
     public async Task<IActionResult> UpdatePost(Ulid postId, [FromBody] PostUpdateRequest postRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _postsService.Update(userId, postId, postRequest);
+        var result = await _postsService.Update(userId, postId, userRole, postRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -74,7 +78,7 @@ public class PostController(PostsService postsService) : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(PostExistFilter))]
     [HttpDelete("{postId}")]
     [ProducesResponseType(204)]
@@ -83,8 +87,9 @@ public class PostController(PostsService postsService) : ControllerBase
     public async Task<IActionResult> DeletePost(Ulid postId)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _postsService.Delete(userId, postId);
+        var result = await _postsService.Delete(userId, userRole, postId);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

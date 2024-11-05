@@ -1,8 +1,11 @@
 ﻿using Application.DTOs.Comments;
 using Application.Services;
+using ForumPOF.Attributes;
 using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Persistance.Enums;
+using System.Security.Claims;
 
 namespace ForumPOF.Controllers;
 
@@ -39,7 +42,7 @@ public class CommentController(CommentsService commentsService) : ControllerBase
         return Ok(comment);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(PostExistFilter))]
     [HttpPost("{postId}")]
     [ProducesResponseType(201)]
@@ -56,7 +59,7 @@ public class CommentController(CommentsService commentsService) : ControllerBase
         return CreatedAtAction(nameof(GetCommentById), new { commentId = result.Data }, result.Data);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(CommentExistFilter))]
     [HttpPut("{commentId}")]
     [ProducesResponseType(204)]
@@ -65,8 +68,9 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     public async Task<IActionResult> UpdateComment(Ulid commentId, [FromBody] CommentUpdateRequest commentRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _commentsService.Update(userId, commentId, commentRequest);
+        var result = await _commentsService.Update(userId, commentId, userRole, commentRequest);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -74,7 +78,7 @@ public class CommentController(CommentsService commentsService) : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(CommentExistFilter))]
     [HttpDelete("{commentId}")]
     [ProducesResponseType(204)]
@@ -83,8 +87,9 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     public async Task<IActionResult> DeleteComment(Ulid commentId)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _commentsService.Delete(userId, commentId);
+        var result = await _commentsService.Delete(userId, userRole, commentId);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

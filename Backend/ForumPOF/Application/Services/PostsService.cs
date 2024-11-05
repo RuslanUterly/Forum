@@ -3,8 +3,10 @@ using Application.Helper;
 using Application.Interfaces.Auth;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using Persistance.Enums;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
+using System.Data;
 
 namespace Application.Services;
 
@@ -49,13 +51,13 @@ public class PostsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Update(Ulid userId, Ulid postId, PostUpdateRequest postRequest)
+    public async Task<Result> Update(Ulid userId, Ulid postId, UserRole role, PostUpdateRequest postRequest)
     {
         //if (!await _postRepository.PostExistById(postId))
         //    return Result.NotFound("Тема для поста не существует");
 
         var post = await _postRepository.GetPostById(postId);
-        if (post.UserId != userId)
+        if (post.UserId != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данному посту");
 
         post = Post.Update(post, postRequest.Content!, DateTime.Now);
@@ -67,13 +69,13 @@ public class PostsService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid userId, Ulid id)
+    public async Task<Result> Delete(Ulid userId, UserRole role, Ulid id)
     {
         //if (!await _postRepository.PostExistById(id))
         //    return Result.NotFound("Тема для поста не существует");
 
         var post = await _postRepository.GetPostById(id);
-        if (post.UserId != userId)
+        if (post.UserId != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данному посту");
 
         var isRemoved = await _postRepository.DeletePost(post);

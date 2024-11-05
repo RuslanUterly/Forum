@@ -118,7 +118,7 @@ public class Program
         );
 
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseMiddleware<JwtMiddleware>();
+        //app.UseMiddleware<JwtMiddleware>();
         app.UseMiddleware<LoggerMiddleware>();
 
         app.UseHttpsRedirection();

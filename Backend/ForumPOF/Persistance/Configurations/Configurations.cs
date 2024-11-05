@@ -45,7 +45,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
         builder.Property(c => c.Id);
 
         var roles = Enum
-            .GetValues<Part>()
+            .GetValues<UserRole>()
             .Select(r => new Role
             {
                 Id = (int)r,

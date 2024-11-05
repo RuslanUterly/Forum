@@ -1,8 +1,9 @@
 ﻿using Application.DTOs.Categories;
 using Application.Services;
+using ForumPOF.Attributes;
 using ForumPOF.Filters;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Persistance.Enums;
 
 namespace ForumPOF.Controllers;
 
@@ -30,7 +31,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
         return Ok(categoriy);
     }
 
-    [Authorize]
+    [AuthorizeByRole(UserRole.Admin)]
     [ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
@@ -45,7 +46,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
         return CreatedAtAction(nameof(GetCategoryByName), new { categoryName = categoryRequest.Name }, result.Data);
     }
 
-    [Authorize]
+    [AuthorizeByRole(UserRole.Admin)]
     [ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPut("{categoryId}")]
     [ProducesResponseType(204)]
@@ -61,7 +62,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
         return NoContent();
     }
 
-    [Authorize]
+    [AuthorizeByRole(UserRole.Admin)]
     [ServiceFilter(typeof(CategoryExistFilter))]
     [HttpDelete("{categoryId}")]
     [ProducesResponseType(204)]

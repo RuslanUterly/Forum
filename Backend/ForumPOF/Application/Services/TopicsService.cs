@@ -3,8 +3,10 @@ using Application.Helper;
 using Application.Interfaces.Auth;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using Persistance.Enums;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
+using System.Data;
 
 namespace Application.Services;
 
@@ -68,7 +70,7 @@ public class TopicsService(
             Result<Ulid>.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Update(Ulid userId, Ulid topicId, Ulid categoryId, TopicUpdateRequest topicRequest, params string[] tagTitles)
+    public async Task<Result> Update(Ulid userId, Ulid topicId, Ulid categoryId, UserRole role, TopicUpdateRequest topicRequest, params string[] tagTitles)
     {
         //if (!await _topicRepository.TopicExistById(topicId))
         //    return Result.NotFound("Темы не существует");
@@ -86,7 +88,7 @@ public class TopicsService(
                 return Result.NotFound("Добавляемый тэг не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicId);
-        if (topic.UserId != userId)
+        if (topic.UserId != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данной теме");
 
         topic = Topic.Update(topic, topicRequest.Title, topicRequest.Content, categoryId, DateTime.Now);
@@ -98,13 +100,13 @@ public class TopicsService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid userId, Ulid topicId)
+    public async Task<Result> Delete(Ulid userId, Ulid topicId, UserRole role)
     {
         //if (!await _topicRepository.TopicExistById(topicId))
         //    return Result.NotFound("Темы не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicId);
-        if (topic.UserId != userId)
+        if (topic.UserId != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данной теме");
 
         var isRemoved = await _topicRepository.DeleteTopic(topic);

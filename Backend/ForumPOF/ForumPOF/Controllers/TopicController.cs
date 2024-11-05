@@ -1,8 +1,11 @@
 ﻿using Application.DTOs.Topics;
 using Application.Services;
+using ForumPOF.Attributes;
 using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Persistance.Enums;
+using System.Security.Claims;
 
 namespace ForumPOF.Controllers;
 
@@ -51,7 +54,7 @@ public class TopicController(TopicsService topicsService) : Controller
         return Ok(topic);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
@@ -68,7 +71,7 @@ public class TopicController(TopicsService topicsService) : Controller
         return CreatedAtAction(nameof(GetTopicById), new { topicId = result.Data}, result.Data);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(TopicExistFilter))]
     [ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPut("{topicId}")]
@@ -78,8 +81,9 @@ public class TopicController(TopicsService topicsService) : Controller
     public async Task<IActionResult> UpdateTopic(Ulid topicId, Ulid categoryId, [FromQuery] string[] tagTitles, [FromBody] TopicUpdateRequest updateTopicRequest)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _topicsService.Update(userId, topicId, categoryId, updateTopicRequest, tagTitles);
+        var result = await _topicsService.Update(userId, topicId, categoryId, userRole, updateTopicRequest, tagTitles);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);
@@ -87,7 +91,7 @@ public class TopicController(TopicsService topicsService) : Controller
         return NoContent();
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(TopicExistFilter))]
     [HttpDelete("{topicId}")]
     [ProducesResponseType(204)]
@@ -96,8 +100,9 @@ public class TopicController(TopicsService topicsService) : Controller
     public async Task<IActionResult> DeleteTopic(Ulid topicId)
     {
         var userId = Ulid.Parse(User.Claims.FirstOrDefault(c => c.Type == "userId")!.Value);
+        var userRole = Enum.Parse<UserRole>(User.FindFirst(ClaimsIdentity.DefaultRoleClaimType)!.Value);
 
-        var result = await _topicsService.Delete(userId, topicId);
+        var result = await _topicsService.Delete(userId, topicId, userRole);
 
         if (!result)
             return StatusCode(result.StatusCode, result.Error);

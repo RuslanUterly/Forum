@@ -3,8 +3,10 @@ using Application.Helper;
 using Application.Interfaces.Auth;
 using Mapster;
 using Microsoft.AspNetCore.Http;
+using Persistance.Enums;
 using Persistance.Models;
 using Persistance.Repository.Interfaces;
+using System.Data;
 
 namespace Application.Services;
 
@@ -86,12 +88,12 @@ public class UsersService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Update(Ulid userId, UserUpdateRequest userRequest)
+    public async Task<Result> Update(Ulid userId, UserRole role, UserUpdateRequest userRequest)
     {
         var passwordHash = _passwordHasher.Generate(userRequest.Password);
 
         var user = await _userRepository.GetUserById(userId);
-        if (user.Id != userId)
+        if (user.Id != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данной операции");
 
         user = User.Update(user, userRequest.UserName, passwordHash, userRequest.Email, DateTime.Now);
@@ -103,10 +105,10 @@ public class UsersService(
             Result.Fail(StatusCodes.Status500InternalServerError, "Произошла ошибка");
     }
 
-    public async Task<Result> Delete(Ulid userId)
+    public async Task<Result> Delete(Ulid userId, UserRole role)
     {
         var user = await _userRepository.GetUserById(userId);
-        if (user.Id != userId)
+        if (user.Id != userId && role != UserRole.Admin)
             return Result.Fail(403, "У вас нет доступа к данной операции");
 
         var isRemoved = await _userRepository.DeleteUser(user);

@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.Tags;
 using Application.Services;
+using ForumPOF.Attributes;
 using ForumPOF.Filters;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ public class TagController(TagsService tagsService) : ControllerBase
         return Ok(tags);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(TagExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
@@ -45,7 +46,7 @@ public class TagController(TagsService tagsService) : ControllerBase
         return CreatedAtAction(nameof(GetTagsByTitle), new { tagTitle = tagRequest.Title}, result.Data);
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(TagExistFilter))]
     [HttpPut("{tagId}")]
     [ProducesResponseType(204)]
@@ -61,7 +62,7 @@ public class TagController(TagsService tagsService) : ControllerBase
         return NoContent();
     }
 
-    [Authorize]
+    [AuthorizeByRole]
     [ServiceFilter(typeof(TagExistFilter))]
     [HttpDelete("{tagId}")]
     [ProducesResponseType(204)]

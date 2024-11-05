@@ -37,7 +37,7 @@ public class User
             UserName = userName,
             Password = password,
             Email = email,
-            RoleId = (int)Part.User,
+            RoleId = (int)UserRole.User,
             Created = created
         };
     }
