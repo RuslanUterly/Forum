@@ -1,7 +1,6 @@
 ﻿using Application.DTOs.Users;
 using Application.Services;
 using ForumPOF.Attributes;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Persistance.Enums;
 using System.Security.Claims;

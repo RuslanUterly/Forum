@@ -36,8 +36,8 @@ public class TagsService(
 
     public async Task<Result<Ulid>> Create(TagCreateRequest tagRequest)
     {
-        //if (await _tagRepository.TagExistByTitle(tagRequest.Title))
-        //    return Result<Ulid>.BadRequest("Тэг уже создан");
+        if (await _tagRepository.TagExistByTitle(tagRequest.Title))
+            return Result<Ulid>.BadRequest("Тэг уже создан");
 
         var tag = Tag.Create(Ulid.NewUlid(), tagRequest.Title);
 
@@ -50,8 +50,8 @@ public class TagsService(
 
     public async Task<Result> Update(Ulid tagId, TagUpdateRequest tagRequest)
     {
-        //if (!await _tagRepository.TagExistById(tagId))
-        //    return Result.NotFound("Тэга не существует");
+        if (!await _tagRepository.TagExistById(tagId))
+            return Result.NotFound("Тэга не существует");
 
         var tag = await _tagRepository.GetTagById(tagId);
 
@@ -66,10 +66,9 @@ public class TagsService(
 
     public async Task<Result> Delete(Ulid tagId)
     {
-        //if (!await _tagRepository.TagExistByTitle(title))
-        //    return Result.NotFound("Тэга не существует");
+        if (!await _tagRepository.TagExistById(tagId))
+            return Result.NotFound("Тэга не существует");
 
-        //var tag = await _tagRepository.GetTagByTitle(title);
         var tag = await _tagRepository.GetTagById(tagId);
 
         var isDeleted = await _tagRepository.DeleteTag(tag);

@@ -32,7 +32,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
     }
 
     [AuthorizeByRole(UserRole.Admin)]
-    [ServiceFilter(typeof(CategoryExistFilter))]
+    //[ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -47,7 +47,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
     }
 
     [AuthorizeByRole(UserRole.Admin)]
-    [ServiceFilter(typeof(CategoryExistFilter))]
+    //[ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPut("{categoryId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -63,7 +63,7 @@ public class CategoryController(CategoriesService categoryService) : ControllerB
     }
 
     [AuthorizeByRole(UserRole.Admin)]
-    [ServiceFilter(typeof(CategoryExistFilter))]
+    //[ServiceFilter(typeof(CategoryExistFilter))]
     [HttpDelete("{categoryId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

@@ -55,7 +55,7 @@ public class TopicController(TopicsService topicsService) : Controller
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(CategoryExistFilter))]
+    //[ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -72,8 +72,8 @@ public class TopicController(TopicsService topicsService) : Controller
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(TopicExistFilter))]
-    [ServiceFilter(typeof(CategoryExistFilter))]
+    //[ServiceFilter(typeof(TopicExistFilter))]
+    //[ServiceFilter(typeof(CategoryExistFilter))]
     [HttpPut("{topicId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -92,7 +92,7 @@ public class TopicController(TopicsService topicsService) : Controller
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(TopicExistFilter))]
+    //[ServiceFilter(typeof(TopicExistFilter))]
     [HttpDelete("{topicId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

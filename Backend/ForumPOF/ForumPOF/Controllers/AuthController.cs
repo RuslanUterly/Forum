@@ -14,7 +14,7 @@ public class AuthController(UsersService usersService) : ControllerBase
 {
     private readonly UsersService _usersService = usersService;
 
-    [ServiceFilter(typeof(RegisterFilter))]
+    //[ServiceFilter(typeof(RegisterFilter))]
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterUserRequest userRequest)
     {
@@ -26,7 +26,7 @@ public class AuthController(UsersService usersService) : ControllerBase
         return CreatedAtAction(nameof(Register), new { id = result.Data }, result.Data);
     }
 
-    [ServiceFilter(typeof(UserExistFilter))]
+    //[ServiceFilter(typeof(UserExistFilter))]
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginUserRequest userRequest)
     {
@@ -40,7 +40,7 @@ public class AuthController(UsersService usersService) : ControllerBase
         return Ok(token.Data);
     }
 
-    [ServiceFilter(typeof(UserExistFilter))]
+    //[ServiceFilter(typeof(UserExistFilter))]
     [HttpPost("reestablish")]
     public async Task<IActionResult> Reestablish([FromBody] ReestablishUserRequest userRequest)
     {

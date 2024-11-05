@@ -43,7 +43,7 @@ public class PostController(PostsService postsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(TopicExistFilter))]
+    //[ServiceFilter(typeof(TopicExistFilter))]
     [HttpPost("{topicId}")]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -60,7 +60,7 @@ public class PostController(PostsService postsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(PostExistFilter))]
+    //[ServiceFilter(typeof(PostExistFilter))]
     [HttpPut("{postId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -79,7 +79,7 @@ public class PostController(PostsService postsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(PostExistFilter))]
+    //[ServiceFilter(typeof(PostExistFilter))]
     [HttpDelete("{postId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

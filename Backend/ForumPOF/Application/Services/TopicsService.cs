@@ -49,10 +49,8 @@ public class TopicsService(
  
     public async Task<Result<Ulid>> Create(Ulid userId, Ulid categoryId, TopicCreateRequest topicRequest, params string[] tagTitles)
     {
-        //Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, topicRequest.CategoryName);
-
-        //if (categoryId == default)
-        //    return Result<Ulid>.NotFound("Категории не существует"); 
+        if (!await _categoryRepository.CategoryExistById(categoryId))
+            return Result<Ulid>.NotFound("Категория не найдена");
 
         var tagTasks = tagTitles.Select(_tagRepository.GetTagByTitle);
         var tags = await Task.WhenAll(tagTasks);
@@ -72,13 +70,11 @@ public class TopicsService(
 
     public async Task<Result> Update(Ulid userId, Ulid topicId, Ulid categoryId, UserRole role, TopicUpdateRequest topicRequest, params string[] tagTitles)
     {
-        //if (!await _topicRepository.TopicExistById(topicId))
-        //    return Result.NotFound("Темы не существует");
+        if (!await _topicRepository.TopicExistById(topicId))
+            return Result.NotFound("Темы не существует");
 
-        //Ulid categoryId = await Reciever.CategoryUlid(_categoryRepository, categoryName);
-
-        //if (categoryId == default)
-        //    return Result.NotFound("Категории не существует");
+        if (!await _categoryRepository.CategoryExistById(categoryId))
+            return Result.NotFound("Категория не найдена");
 
         var tagTasks = tagTitles.Select(_tagRepository.GetTagByTitle);
         var tags = await Task.WhenAll(tagTasks);
@@ -102,8 +98,8 @@ public class TopicsService(
 
     public async Task<Result> Delete(Ulid userId, Ulid topicId, UserRole role)
     {
-        //if (!await _topicRepository.TopicExistById(topicId))
-        //    return Result.NotFound("Темы не существует");
+        if (!await _topicRepository.TopicExistById(topicId))
+            return Result.NotFound("Темы не существует");
 
         var topic = await _topicRepository.GetTopicsById(topicId);
         if (topic.UserId != userId && role != UserRole.Admin)

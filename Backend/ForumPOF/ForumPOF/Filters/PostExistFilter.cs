@@ -7,23 +7,23 @@ using Persistance.Repository.Interfaces;
 
 namespace ForumPOF.Filters;
 
-public class PostExistFilter(
-    IPostRepository postRepository
-    ) : Attribute, IAsyncActionFilter
-{
-    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-    {
-        context.ActionArguments.TryGetValue("postId", out object? content);
+//public class PostExistFilter(
+//    IPostRepository postRepository
+//    ) : Attribute, IAsyncActionFilter
+//{
+//    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+//    {
+//        context.ActionArguments.TryGetValue("postId", out object? content);
 
-        if (content is Ulid id) 
-        {
-            if (!await postRepository.PostExistById(id))
-            {
-                context.Result = new NotFoundObjectResult("Пост не существует");
-                return;
-            }
-        }
+//        if (content is Ulid id) 
+//        {
+//            if (!await postRepository.PostExistById(id))
+//            {
+//                context.Result = new NotFoundObjectResult("Пост не существует");
+//                return;
+//            }
+//        }
 
-        var result = await next();
-    }
-}
+//        var result = await next();
+//    }
+//}

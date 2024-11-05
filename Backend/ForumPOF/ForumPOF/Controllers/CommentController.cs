@@ -43,7 +43,7 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(PostExistFilter))]
+    //[ServiceFilter(typeof(PostExistFilter))]
     [HttpPost("{postId}")]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -60,7 +60,7 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(CommentExistFilter))]
+    //[ServiceFilter(typeof(CommentExistFilter))]
     [HttpPut("{commentId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -79,7 +79,7 @@ public class CommentController(CommentsService commentsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(CommentExistFilter))]
+    //[ServiceFilter(typeof(CommentExistFilter))]
     [HttpDelete("{commentId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

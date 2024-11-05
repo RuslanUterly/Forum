@@ -32,7 +32,7 @@ public class TagController(TagsService tagsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(TagExistFilter))]
+    //[ServiceFilter(typeof(TagExistFilter))]
     [HttpPost]
     [ProducesResponseType(201)]
     [ProducesResponseType(400)]
@@ -47,7 +47,7 @@ public class TagController(TagsService tagsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(TagExistFilter))]
+    //[ServiceFilter(typeof(TagExistFilter))]
     [HttpPut("{tagId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]
@@ -63,7 +63,7 @@ public class TagController(TagsService tagsService) : ControllerBase
     }
 
     [AuthorizeByRole]
-    [ServiceFilter(typeof(TagExistFilter))]
+    //[ServiceFilter(typeof(TagExistFilter))]
     [HttpDelete("{tagId}")]
     [ProducesResponseType(204)]
     [ProducesResponseType(400)]

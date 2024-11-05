@@ -39,8 +39,8 @@ public class CommentsService(
     
     public async Task<Result<Ulid>> Create(Ulid userId, Ulid postId, CommentCreateRequest commentRequest)
     {
-        //if (!await _postRepository.PostExistById(commentRequest.PostId))
-        //    return Result<Ulid>.NotFound("Пост не существует");
+        if (!await _postRepository.PostExistById(postId))
+            return Result<Ulid>.NotFound("Пост не существует");
 
         var comment = Comment.Create(Ulid.NewUlid(), postId, userId, commentRequest.Content, DateTime.Now);
 
@@ -53,8 +53,8 @@ public class CommentsService(
     
     public async Task<Result> Update(Ulid userId, Ulid commentId, UserRole role, CommentUpdateRequest commentRequest)
     {
-        //if (!await _commentRepository.CommentExistById(commentId))
-        //    return Result.NotFound("Комментария не существует");
+        if (!await _commentRepository.CommentExistById(commentId))
+            return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(commentId);
         if (comment.UserId != userId && role != UserRole.Admin)
@@ -71,8 +71,8 @@ public class CommentsService(
 
     public async Task<Result> Delete(Ulid userId, UserRole role, Ulid commentId)
     {
-        //if (!await _commentRepository.CommentExistById(id))
-        //    return Result.NotFound("Комментария не существует");
+        if (!await _commentRepository.CommentExistById(commentId))
+            return Result.NotFound("Комментария не существует");
 
         var comment = await _commentRepository.GetCommentById(commentId);
         if (comment.UserId != userId && role != UserRole.Admin)
